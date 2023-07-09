@@ -3,7 +3,6 @@
 using Saturn.BL.Logging;
 using Saturn.BL.Persistence;
 using Saturn.Persistance;
-using Serilog.Core;
 using System.Diagnostics;
 using System.Reflection;
 
@@ -26,7 +25,7 @@ namespace Saturn.BL.FeatureUtils
 
         private bool Built = false;
 
-        private IList<Feature> Features { get; set; }   
+        private IList<Feature> Features { get; set; }
 
         #endregion
 
