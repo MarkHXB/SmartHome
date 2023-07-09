@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33723.286
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Saturn.CLI", "Saturn.CLI\Saturn.CLI.csproj", "{6B0B8290-774A-4654-9CAF-A3AD6816F6CF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Saturn.BL", "Saturn.BL\Saturn.BL.csproj", "{5E188141-8C82-4662-935B-89D6F9204B0A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Saturn.API", "Saturn.API\Saturn.API.csproj", "{243E1956-B3E3-4395-B70D-301A58CE1EAA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6B0B8290-774A-4654-9CAF-A3AD6816F6CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B0B8290-774A-4654-9CAF-A3AD6816F6CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B0B8290-774A-4654-9CAF-A3AD6816F6CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B0B8290-774A-4654-9CAF-A3AD6816F6CF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5E188141-8C82-4662-935B-89D6F9204B0A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5E188141-8C82-4662-935B-89D6F9204B0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5E188141-8C82-4662-935B-89D6F9204B0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5E188141-8C82-4662-935B-89D6F9204B0A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{243E1956-B3E3-4395-B70D-301A58CE1EAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{243E1956-B3E3-4395-B70D-301A58CE1EAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{243E1956-B3E3-4395-B70D-301A58CE1EAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{243E1956-B3E3-4395-B70D-301A58CE1EAA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {40C488E2-785D-422D-AAC0-CD16C569AA9C}
+	EndGlobalSection
+EndGlobal

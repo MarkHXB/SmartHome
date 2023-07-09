@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Saturn.CLI": {
+      "commandName": "Project",
+      "commandLineArgs": "addfeature \"C:\\Users\\sasli\\source\\repos\\asd\\asd.sln\""
+    }
+  }
+}
