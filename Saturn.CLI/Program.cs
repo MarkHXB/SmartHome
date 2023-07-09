@@ -3,7 +3,6 @@
 using Saturn.BL;
 using Saturn.BL.FeatureUtils;
 using Saturn.BL.Logging;
-using Saturn.BL.Persistence;
 using Saturn.Persistance;
 using Serilog;
 using Serilog.Core;
@@ -23,17 +22,17 @@ class Program
 
             _logger = loggerConfiguration.CreateLogger();
 
-            var loggerLogicProvider = new LoggerLogicProviderSerilog(_logger);
+            ILoggerLogicProvider loggerLogicProvider = new LoggerLogicProviderSerilog(_logger);
 
-            featureHandler = await FeatureHandler.Build(loggerLogicProvider.LogInformation, loggerLogicProvider.LogWarning);
+            featureHandler = await FeatureHandler.BuildAsync(loggerLogicProvider);
 
             await CommandHandler.Parse(featureHandler, args);
 
             if (featureHandler.IsModified)
             {
-                await Cache.Save(featureHandler.Features);
+                await Cache.Save(featureHandler.GetFeatures());
             }
-            if(AppInfo.SaveFeatureOutputToFile)
+            if (AppInfo.SaveFeatureOutputToFile)
             {
                 await featureHandler.SaveOutputToFile();
             }
