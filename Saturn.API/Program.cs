@@ -1,4 +1,7 @@
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using Saturn.API.Services;
 using Saturn.BL;
 using Saturn.BL.FeatureUtils;
@@ -6,6 +9,7 @@ using Saturn.BL.Logging;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
+using Microsoft.AspNetCore.HttpOverrides;
 
 namespace Saturn.API
 {
@@ -18,7 +22,7 @@ namespace Saturn.API
             // Add services to the container.     
 
             var logger = new LoggerConfiguration()
-             .WriteTo.File(AppInfo.LogFilePath_CLI, outputTemplate: new SerilogTextFormatter().GetOutputTemplate())
+             .WriteTo.File(AppInfo.LogFilePath_API, outputTemplate: new SerilogTextFormatter().GetOutputTemplate())
              .Enrich.FromLogContext()
             .CreateLogger();
             builder.Logging.ClearProviders();
@@ -40,6 +44,11 @@ namespace Saturn.API
 
             var app = builder.Build();
 
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            });
+
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
@@ -50,7 +59,6 @@ namespace Saturn.API
             app.UseHttpsRedirection();
             app.UseAuthorization();
             app.MapControllers();
-
             app.Run();
         }
 
