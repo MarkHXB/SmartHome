@@ -27,12 +27,13 @@ class Program
             featureHandler = await FeatureHandler.BuildAsync(loggerLogicProvider);
 
             await CommandHandler.Parse(featureHandler, args);
+            featureHandler.GetFeatures("")
 
             if (featureHandler.IsModified)
             {
                 await Cache.Save(featureHandler.GetFeatures());
             }
-            if (AppInfo.SaveFeatureOutputToFile)
+            if (AppInfoResolver.ShouldSaveFeatureOutputToFile())
             {
                 await featureHandler.SaveOutputToFile();
             }

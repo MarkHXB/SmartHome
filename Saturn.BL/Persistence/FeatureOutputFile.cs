@@ -7,9 +7,9 @@ namespace Saturn.BL.Persistence
     {
         public static async Task Save(Feature feature)
         {
-            if (!AppInfo.SaveFeatureOutputToFile)
+            if (!AppInfoResolver.ShouldSaveFeatureOutputToFile())
             {
-                throw new Exception($"{nameof(AppInfo.SaveFeatureOutputToFile)} is not enabled, but the program tried to save the output of {feature.FeatureName}");
+                throw new Exception($"{nameof(AppInfoResolver.ShouldSaveFeatureOutputToFile)} is not enabled, but the program tried to save the output of {feature.FeatureName}");
             }
 
             _ = feature ?? throw new ArgumentNullException(feature?.FeatureName ?? nameof(feature));

@@ -4,13 +4,10 @@ namespace Saturn.BL.FeatureUtils
 {
     public class FeatureExecutable : Feature
     {
-        public FeatureExecutable(string featureName, string pathToExecutable, bool isEnabled) : base (featureName, FeatureResult.Exe)
+        public FeatureExecutable(string featureName, bool isEnabled, string pathToFile) : base (featureName, FeatureResult.Exe, pathToFile, new CancellationTokenSource())
         {
             IsEnabled = isEnabled;
-            PathToExecutable = pathToExecutable;
         }
-
-        public string PathToExecutable { get; }
 
         public override async Task Run(string[]? args = null)
         {
@@ -19,7 +16,7 @@ namespace Saturn.BL.FeatureUtils
                 throw new Exception($"You wanted to run the {FeatureName} which is not enabled.\nTry to run Enable() method.");
             }
 
-            if (string.IsNullOrWhiteSpace(PathToExecutable))
+            if (string.IsNullOrWhiteSpace(PathToFile))
             {
                 throw new FileNotFoundException(nameof(FeatureName) + " couldn't run because file not found");
             }
@@ -31,29 +28,23 @@ namespace Saturn.BL.FeatureUtils
                     "run"
                 };
             }
-
-            var proc = new Process
+            
+            var processConfig = new ProcessStartInfo
             {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = PathToExecutable,
-                    Arguments = string.Join(" ", args),
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    CreateNoWindow = true
-                }
+                FileName = PathToFile,
+                Arguments = string.Join(" ", args),
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true
             };
 
-            await Task.Run(() =>
+            using (var process = Process.Start(processConfig))
             {
-                proc.Start();
+                OutputDataReceived(process);
+                ErrorDataReceived(process);
 
-                while (!proc.StandardOutput.EndOfStream)
-                {
-                    string line = proc.StandardOutput?.ReadLine() ?? string.Empty;
-                     
-                    Output.Add(DateTime.Now,line);
-                }
-            }); 
+                await process.WaitForExitAsync(CancellationTokenSource.Token);
+            }
         }
     }}

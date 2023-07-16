@@ -1,59 +1,47 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics;
 
 namespace Saturn.BL.FeatureUtils
 {
     public class FeatureDll : Feature
     {
-        private string dllName = string.Empty;
-
-        public FeatureDll(string featureName, string dllName, bool isEnabled) : base(featureName, FeatureResult.Dll)
+        public FeatureDll(string featureName, bool isEnabled, string pathToFile) : base(featureName, FeatureResult.Dll, pathToFile, new CancellationTokenSource())
         {
-            DllName = dllName;
             IsEnabled = isEnabled;
         }
-        public FeatureDll(string featureName, string dllName, Type program, bool isEnabled) : base(featureName, FeatureResult.Dll)
-        {
-            DllName = dllName;
-            Program = program;
-            IsEnabled = isEnabled;
-        }
-
-        public string DllName
-        {
-            get
-            {
-                return dllName;
-            }
-            private set
-            {
-                dllName = value.Replace(".dll", "");
-            }
-        }
-        public Type? Program { get; }
 
         public override async Task Run(string[]? args = null)
         {
             if (IsEnabled is false)
             {
-                throw new Exception($"You wanted to run the {DllName} which is not enabled.\nTry to run Enable() method.");
+                throw new Exception($"You wanted to run the {FeatureName} which is not enabled.\nTry to run Enable() method.");
             }
 
-            _ = Program ?? throw new ArgumentNullException(nameof(Program));
+            if (string.IsNullOrWhiteSpace(PathToFile))
+            {
+                throw new FileNotFoundException(nameof(FeatureName) + " couldn't run because file not found");
+            }
 
-            if (args is null)
+            string arg = string.Join(" ", PathToFile, args ?? Array.Empty<string>());
+
+            var processConfig = new ProcessStartInfo
             {
-                await Task.Run(() =>
-                {
-                    Program.InvokeMember("Main", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, new object[] { "asd" });
-                });
-            }
-            else
+                FileName = "dotnet",
+                Arguments = arg,
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true
+            };
+
+            using (var process = Process.Start(processConfig))
             {
-                await Task.Run(() =>
-                {
-                    Program.InvokeMember("Main", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, args);
-                });
+                OutputDataReceived(process);
+                ErrorDataReceived(process);
+
+                await process.WaitForExitAsync(CancellationTokenSource.Token);
             }
+
+            OperationFinished?.in
         }
     }
 }

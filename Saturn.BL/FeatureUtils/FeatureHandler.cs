@@ -1,6 +1,4 @@
-﻿#define DLL_COLLECTIONS_IS_UNDEFINED
-
-using Saturn.BL.Logging;
+﻿using Saturn.BL.Logging;
 using Saturn.BL.Persistence;
 using Saturn.Persistance;
 using System.Diagnostics;
@@ -12,20 +10,15 @@ namespace Saturn.BL.FeatureUtils
     {
         #region Fields
 
-        private readonly string DllFolderPath = @"C:\Shared\Release";
-        private readonly string ExecutablesFolderPath = @"C:\Shared\Release";
         private static IList<CacheLoadRecord> s_CacheLoadRecords = new List<CacheLoadRecord>()
     {
         new CacheLoadRecord("dll","FeatureDlls"),
         new CacheLoadRecord("exe","FeatureExecutables"),
     };
-
-        public Action<string> LogInformation;
-        public Action<string> LogWarning;
-
-        private bool Built = false;
-
-        private IList<Feature> Features { get; set; }
+        public Action<string> m_LogInformation;
+        public Action<string> m_LogWarning;
+        private bool s_Built = false;
+        private IList<Feature> m_Features;
 
         #endregion
 
@@ -42,18 +35,18 @@ namespace Saturn.BL.FeatureUtils
             _ = logInformation ?? throw new ArgumentNullException(nameof(logInformation));
             _ = logWarning ?? throw new ArgumentNullException(nameof(logWarning));
 
-            LogInformation = logInformation;
-            LogWarning = logWarning;
-            Features = new List<Feature>();
+            m_LogInformation = logInformation;
+            m_LogWarning = logWarning;
+            m_Features = new List<Feature>();
         }
 
         public FeatureHandler(ILoggerLogicProvider loggerLogicProvider)
         {
             _ = loggerLogicProvider ?? throw new ArgumentNullException(nameof(loggerLogicProvider));
 
-            LogInformation = loggerLogicProvider.LogInformation;
-            LogWarning = loggerLogicProvider.LogWarning;
-            Features = new List<Feature>();
+            m_LogInformation = loggerLogicProvider.LogInformation;
+            m_LogWarning = loggerLogicProvider.LogWarning;
+            m_Features = new List<Feature>();
         }
 
         #endregion
@@ -64,16 +57,16 @@ namespace Saturn.BL.FeatureUtils
         {
             FeatureHandler featureHandler = new FeatureHandler(loggerLogicProvider);
 
-            if (AppInfo.LoadFromCache)
+            if (AppInfoResolver.UseLoadFromCache())
             {
                 var features = await Cache.Load(cacheLoadRecords ?? s_CacheLoadRecords);
-                featureHandler.Features = features;
+                featureHandler.m_Features = features;
             }
             else
             {
                 await featureHandler.Collect();
 
-                await Cache.Save(featureHandler.Features);
+                await Cache.Save(featureHandler.m_Features);
             }
 
             return featureHandler;
@@ -85,19 +78,19 @@ namespace Saturn.BL.FeatureUtils
 
         public async Task BuildAsync(IList<CacheLoadRecord>? cacheLoadRecords = null)
         {
-            if (AppInfo.LoadFromCache)
+            if (AppInfoResolver.UseLoadFromCache())
             {
                 var features = await Cache.Load(cacheLoadRecords ?? s_CacheLoadRecords);
-                Features = features;
+                m_Features = features;
             }
             else
             {
                 await Collect();
 
-                await Cache.Save(Features);
+                await Cache.Save(m_Features);
             }
 
-            Built = true;
+            s_Built = true;
         }
         public async Task TryToRun(string? featureName = "", string[]? args = null)
         {
@@ -106,15 +99,15 @@ namespace Saturn.BL.FeatureUtils
                 throw new ArgumentNullException(nameof(featureName) + "\nFeature Name cannot be null!");
             }
 
-            var feature = Features.FirstOrDefault(f => f.FeatureName == featureName);
+            var feature = m_Features.FirstOrDefault(f => f.FeatureName == featureName);
 
             _ = feature ?? throw new ArgumentNullException(nameof(feature));
 
-            LogInformation($" @BL [{feature.FeatureResult}] {feature.FeatureName} started");
+            m_LogInformation($" @BL [{feature.FeatureResult}] {feature.FeatureName} started");
 
             await feature.Run(args);
 
-            LogInformation($" @BL [{feature.FeatureResult}] {feature.FeatureName} finished");
+            m_LogInformation($" @BL [{feature.FeatureResult}] {feature.FeatureName} finished");
         }
         public async Task<string> TryToRunReturnOutput(string? featureName = "", string[]? args = null)
         {
@@ -123,38 +116,40 @@ namespace Saturn.BL.FeatureUtils
                 throw new ArgumentNullException(nameof(featureName) + "\nFeature Name cannot be null!");
             }
 
-            var feature = Features.FirstOrDefault(f => f.FeatureName == featureName);
+            var feature = m_Features.FirstOrDefault(f => f.FeatureName == featureName);
 
             _ = feature ?? throw new ArgumentNullException(nameof(feature));
 
-            LogInformation($" @BL [{feature.FeatureResult}] {feature.FeatureName} started");
+            m_LogInformation($" @BL [{feature.FeatureResult}] {feature.FeatureName} started");
 
             await feature.Run(args);
 
-            LogInformation($" @BL [{feature.FeatureResult}] {feature.FeatureName} finished");
+            m_LogInformation($" @BL [{feature.FeatureResult}] {feature.FeatureName} finished");
 
             return feature.OutputToString();
         }
         public async Task TryToRunAll()
         {
-            foreach (var feature in Features)
+            foreach (var feature in m_Features)
             {
-                LogInformation($" @BL [{feature.FeatureResult}] {feature.FeatureName} started");
+                m_LogInformation($" @BL [{feature.FeatureResult}] {feature.FeatureName} started");
 
                 await feature.Run();
 
-                LogInformation($" @BL [{feature.FeatureResult}] {feature.FeatureName} finished");
+                m_LogInformation($" @BL [{feature.FeatureResult}] {feature.FeatureName} finished");
             }
         }
         public async Task Collect()
         {
-            CollectAlternativExecutables();
-
-            await CollectExecutables();
-
-#if DLL_COLLECTIONS_IS_DEFINED
-            await CollectDlls();
-#endif
+            if (AppInfo.IsWindows)
+            {
+                CollectAlternativExecutables();
+                await CollectExecutables();
+            }
+            else
+            {
+                await CollectDlls();
+            }
         }
         public void AddFeature(string? pathToFeature)
         {
@@ -163,37 +158,52 @@ namespace Saturn.BL.FeatureUtils
             // CASE 1: If solution file
             if (FeaturePathIsSolutionFile(pathToFeature ?? string.Empty))
             {
-                feature = ConvertSolutionToFeatureExecutable(pathToFeature);
+                feature = ConvertSolutionToFeatureExecutableWindows(pathToFeature);
             }
             // CASE 2: If directly exe or dll file
             else
             {
-                feature = ParseFeatureByFilePath(pathToFeature, AppInfo.ShouldEnableNewlyAddedFeature);
+                feature = ParseFeatureByFilePath(pathToFeature, AppInfoResolver.ShouldEnableNewlyAddedFeature());
             }
 
             RegisterFeature(feature);
         }
         public void EnableFeature(string? featureName)
         {
-            var feature = Features.FirstOrDefault(f => f.FeatureName == featureName);
+            var feature = m_Features.FirstOrDefault(f => f.FeatureName == featureName);
 
             if (feature is not null && feature?.IsEnabled == false)
             {
                 feature.Enable();
                 IsModified = true;
-                LogInformation($" @BL {feature.FeatureName} enabled");
+                m_LogInformation($" @BL {feature.FeatureName} enabled");
             }
         }
         public void DisableFeature(string? featureName)
         {
-            var feature = Features.FirstOrDefault(f => f.FeatureName == featureName);
+            var feature = m_Features.FirstOrDefault(f => f.FeatureName == featureName);
 
             if (feature is not null && feature?.IsEnabled == true)
             {
                 feature.Disable();
                 IsModified = true;
-                LogInformation($" @BL {feature.FeatureName} disabled");
+                m_LogInformation($" @BL {feature.FeatureName} disabled");
             }
+        }
+        public void StopFeature(string? featureName) 
+        {
+            if (string.IsNullOrWhiteSpace(featureName))
+            {
+                throw new ArgumentNullException(nameof(featureName) + "\nFeature Name cannot be null!");
+            }
+
+            var feature = m_Features.FirstOrDefault(f => f.FeatureName == featureName);
+
+            _ = feature ?? throw new ArgumentNullException(nameof(feature));
+
+            feature.Stop();
+
+            feature.CancellationRequested -= CancellationRequestedOnFeature;
         }
         public Task ScheduleRun(string? value)
         {
@@ -201,37 +211,42 @@ namespace Saturn.BL.FeatureUtils
         }
         public async Task SaveOutputToFile()
         {
-            foreach (var feature in Features)
+            foreach (var feature in m_Features)
             {
                 await FeatureOutputFile.Save(feature);
             }
         }
-
         public async Task<IList<Feature>> GetFeaturesAsync()
         {
-            if (!Built)
+            if (!s_Built)
             {
                 await BuildAsync();
             }
 
-            return Features;
+            return m_Features;
         }
         public IList<Feature> GetFeatures()
         {
-            return Features;
+            return m_Features;
+        }
+        public void CancellationRequestedOnFeature(object? sender, EventArgs eventArgs)
+        {
+            Feature? feature = sender as Feature;
+
+            m_LogInformation($" @BL [{feature.FeatureResult}] {feature.FeatureName} stopped by user.");
         }
 
         #endregion
 
         #region Private methods
 
-        private Feature? ConvertSolutionToFeatureExecutable(string? pathToFeature)
+        private Feature? ConvertSolutionToFeatureExecutableWindows(string? pathToFeature)
         {
             Feature? feature = null;
 
             if (!FeaturePathIsSolutionFile(pathToFeature ?? string.Empty))
             {
-                LogWarning($"@BL Failed to identify solution {pathToFeature}. Try to add feature like this:addfeature ...folder/asd.sln");
+                m_LogWarning($"@BL Failed to identify solution {pathToFeature}. Try to add feature like this:addfeature ...folder/asd.sln");
                 return feature;
             }
 
@@ -281,7 +296,7 @@ namespace Saturn.BL.FeatureUtils
 
             if (string.IsNullOrWhiteSpace(exeFilePath))
             {
-                LogWarning($"@BL Under {executableRootPath} not found any executable file.");
+                m_LogWarning($"@BL Under {executableRootPath} not found any executable file.");
                 return feature;
             }
 
@@ -297,7 +312,7 @@ namespace Saturn.BL.FeatureUtils
                 source.CopyTo(destination);
             }
 
-            feature = ParseFeatureByFilePath(destinationExePath, AppInfo.ShouldEnableNewlyAddedFeature);
+            feature = ParseFeatureByFilePath(destinationExePath, AppInfoResolver.ShouldEnableNewlyAddedFeature());
 
             return feature;
         }
@@ -306,7 +321,7 @@ namespace Saturn.BL.FeatureUtils
         {
             string path = AppInfo.AlternativeFeatureFolderPath;
 
-            if (!AppInfo.UseAlternativeFeatures)
+            if (!AppInfoResolver.UseAlternativeFeatures())
             {
                 return;
             }
@@ -323,36 +338,33 @@ namespace Saturn.BL.FeatureUtils
         }
         private async Task CollectDlls()
         {
-            if (!Directory.Exists(DllFolderPath))
+            if (!Directory.Exists(AppInfo_Linux.DllFolderPath))
             {
-                throw new DllNotFoundException(nameof(DllFolderPath));
+                Directory.CreateDirectory(AppInfo_Linux.DllFolderPath);
+                throw new Exception($"{nameof(AppInfo_Linux.DllFolderPath)} folder created successfully.\nNow you should add at least one dll to work with!");
             }
 
             await Task.Run(() =>
             {
-                string[] folderPaths = Directory.GetDirectories(DllFolderPath);
+                string[] dlls = Directory.GetFiles(AppInfo_Linux.DllFolderPath);
 
-                foreach (var dotnetVersionFolderPath in folderPaths)
+                foreach (var dllFilePath in dlls)
                 {
-                    string[] files = Directory.GetFiles(dotnetVersionFolderPath);
-
-                    foreach (var filePath in files)
-                    {
-                        ParseDllToFeature(filePath);
-                    }
+                    ParseDllToFeature(dllFilePath);
                 }
             });
         }
         private async Task CollectExecutables()
         {
-            if (!Directory.Exists(ExecutablesFolderPath))
+            if (!Directory.Exists(AppInfo_Windows.ExecutablesFolderPath))
             {
-                throw new ExecutableFolderNotFound(nameof(ExecutablesFolderPath));
+                Directory.CreateDirectory(AppInfo_Windows.ExecutablesFolderPath);
+                throw new Exception($"{nameof(AppInfo_Windows.ExecutablesFolderPath)} folder created successfully.\nNow you should add at least one exe to work with!");
             }
 
             await Task.Run(() =>
             {
-                string[] folderPaths = Directory.GetDirectories(ExecutablesFolderPath);
+                string[] folderPaths = Directory.GetDirectories(AppInfo_Windows.ExecutablesFolderPath);
 
                 foreach (var dotnetVersionFolderPath in folderPaths)
                 {
@@ -369,18 +381,20 @@ namespace Saturn.BL.FeatureUtils
         {
             _ = feature ?? throw new Exception($" @BL failed to register feature because it is null");
 
-            if (Features.Any(f => f.FeatureName == feature.FeatureName))
+            if (m_Features.Any(f => f.FeatureName == feature.FeatureName))
             {
-                LogInformation($" @BL {feature.FeatureName} is already regiestered to <{feature.FeatureResult}> features.");
+                m_LogInformation($" @BL {feature.FeatureName} is already regiestered to <{feature.FeatureResult}> features.");
 
                 return;
             }
 
-            Features.Add(feature);
+            feature.CancellationRequested += CancellationRequestedOnFeature;
+
+            m_Features.Add(feature);
 
             IsModified = true;
 
-            LogInformation($" @BL [{feature.FeatureName}] <{feature.FeatureResult}> has added to feautres");
+            m_LogInformation($" @BL [{feature.FeatureName}] <{feature.FeatureResult}> has added to feautres");
         }
         private Feature? ParseFeatureByFilePath(string? pathToFeature, bool enableFeature)
         {
@@ -396,11 +410,11 @@ namespace Saturn.BL.FeatureUtils
 
             if (extension == ".exe")
             {
-                feature = new FeatureExecutable(featureName, pathToFeature, enableFeature);
+                feature = new FeatureExecutable(featureName, enableFeature, pathToFeature);
             }
             else if (extension == ".dll")
             {
-                feature = new FeatureDll(featureName, pathToFeature, enableFeature);
+                feature = new FeatureDll(featureName, enableFeature, pathToFeature);
             }
 
             return feature;
@@ -416,23 +430,9 @@ namespace Saturn.BL.FeatureUtils
 
             if (Path.GetExtension(pathToDll) == ".dll" && !pathToDll.Contains("Microsoft"))
             {
-                var dll = Assembly.LoadFile(pathToDll);
+                string featureName = Path.GetFileNameWithoutExtension(pathToDll);
 
-                var program = dll.GetTypes().FirstOrDefault(t => t.Name == "Program");
-
-                if (program is null)
-                {
-                    return feature;
-                }
-
-                var method = program.GetMethod("Main", BindingFlags.Public | BindingFlags.Static);
-
-                if (method is null)
-                {
-                    return feature;
-                }
-
-                RegisterFeature(new FeatureDll(dll.ManifestModule.Name, dll.ManifestModule.Name, program, AppInfo.ShouldEnableNewlyAddedFeature));
+                RegisterFeature(new FeatureDll(featureName, AppInfoResolver.ShouldEnableNewlyAddedFeature(), pathToDll));
             }
 
             return feature;
@@ -450,7 +450,7 @@ namespace Saturn.BL.FeatureUtils
             {
                 string featureName = Path.GetFileNameWithoutExtension(filePath);
 
-                RegisterFeature(new FeatureExecutable(featureName, filePath, AppInfo.ShouldEnableNewlyAddedFeature));
+                RegisterFeature(new FeatureExecutable(featureName, AppInfoResolver.ShouldEnableNewlyAddedFeature(), filePath));
             }
 
             return feature;
