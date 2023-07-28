@@ -24,11 +24,6 @@ namespace Saturn.BL.FeatureUtils
 
         public event EventHandler CancellationRequested;
 
-        /// <summary>
-        /// This is needed due to CancellationRequested event. If the process ends then should unsubscribe events.
-        /// </summary>
-        public event EventHandler OperationFinished;
-
         [JsonIgnore]
         public IDictionary<DateTime, string> Output { get; protected set; }
 
@@ -58,7 +53,7 @@ namespace Saturn.BL.FeatureUtils
 
             foreach (var item in Output)
             {
-                output += string.Concat("[ ", item.Key, " ]", " ", item.Value);
+                output += string.Concat("[ ", item.Key, " ]", " ", item.Value, Environment.NewLine);
             }
 
             return output;
@@ -68,7 +63,6 @@ namespace Saturn.BL.FeatureUtils
             CancellationRequested?.Invoke(this, EventArgs.Empty);
             CancellationTokenSource.Cancel();
             CancellationTokenSource.Dispose();
-            OperationFinished?.Invoke(this, EventArgs.Empty);
         }
 
         #endregion
@@ -92,7 +86,7 @@ namespace Saturn.BL.FeatureUtils
         }
         protected virtual void ErrorDataReceived(Process process)
         {
-            process.BeginOutputReadLine();
+            process.BeginErrorReadLine();
 
             process.ErrorDataReceived += (e, d) =>
             {

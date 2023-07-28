@@ -41,7 +41,6 @@ namespace Saturn.BL.FeatureUtils
                 await process.WaitForExitAsync(CancellationTokenSource.Token);
             }
 
-            OperationFinished?.in
         }
     }
 }

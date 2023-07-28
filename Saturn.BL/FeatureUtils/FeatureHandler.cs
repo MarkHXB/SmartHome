@@ -190,7 +190,7 @@ namespace Saturn.BL.FeatureUtils
                 m_LogInformation($" @BL {feature.FeatureName} disabled");
             }
         }
-        public void StopFeature(string? featureName) 
+        public void Stop(string? featureName) 
         {
             if (string.IsNullOrWhiteSpace(featureName))
             {
@@ -204,6 +204,13 @@ namespace Saturn.BL.FeatureUtils
             feature.Stop();
 
             feature.CancellationRequested -= CancellationRequestedOnFeature;
+        }
+        public void StopAll()
+        {
+            foreach (var feature in m_Features)
+            {
+                feature.Stop();
+            }
         }
         public Task ScheduleRun(string? value)
         {
@@ -233,7 +240,7 @@ namespace Saturn.BL.FeatureUtils
         {
             Feature? feature = sender as Feature;
 
-            m_LogInformation($" @BL [{feature.FeatureResult}] {feature.FeatureName} stopped by user.");
+            m_LogInformation($" @BL [{feature.FeatureResult}] {feature.FeatureName} stopped.");
         }
 
         #endregion

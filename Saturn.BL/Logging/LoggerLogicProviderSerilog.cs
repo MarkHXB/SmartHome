@@ -1,24 +1,32 @@
 ﻿namespace Saturn.BL.Logging
 {
+    using Serilog;
     using Serilog.Core;
 
     public class LoggerLogicProviderSerilog : ILoggerLogicProvider
     {
-        Logger logger;
+        Logger _logger;
 
+        public LoggerLogicProviderSerilog()
+        {
+            var loggerConfiguration = new LoggerConfiguration()
+             .WriteTo.File(AppInfo.LogFilePath_CLI);
+
+            _logger = loggerConfiguration.CreateLogger();
+        }
         public LoggerLogicProviderSerilog(Logger logger)
         {
-            this.logger = logger;
+            _logger = logger;
         }
 
         public void LogInformation(string message)
         {
-            logger.Information(message);
+            _logger.Information(message);
         }
 
         public void LogWarning(string message)
         {
-            logger.Warning(message);
+            _logger.Warning(message);
         }
     }
 }
