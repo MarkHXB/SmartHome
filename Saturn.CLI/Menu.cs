@@ -1,6 +1,7 @@
 ﻿using Saturn.BL;
 using Saturn.BL.FeatureUtils;
 using Saturn.BL.Logging;
+using Saturn.Persistance;
 using System.Text;
 
 namespace Saturn.CLI
@@ -61,6 +62,12 @@ namespace Saturn.CLI
                         case ConsoleKey.D3:
                             Stop();
                             break;
+                        case ConsoleKey.D5:
+                            EnableFeature();
+                            break;
+                        case ConsoleKey.D6:
+                            DisableFeature();
+                            break;
                         default:
                             SetStatus("Please enter a valid menu option...");
                             SuccessBinding = false;
@@ -72,10 +79,21 @@ namespace Saturn.CLI
                 Thread.Sleep(500);
             }
 
+            if (m_FeatureHandler.IsModified)
+            {
+                await Cache.Save(m_FeatureHandler.GetFeatures());
+            }
             if (AppInfoResolver.ShouldSaveFeatureOutputToFile())
             {
                 await m_FeatureHandler.SaveOutputToFile();
             }
+        }
+
+        private void DisableFeature()
+        {
+            string? featureName = GetReadLine("Name of feature you want to DISABLE");
+
+            Task.Run(async () => await CommandHandler.Parse(m_FeatureHandler, "disable", featureName));
         }
 
         private int GetWorkingThreads()
@@ -97,18 +115,25 @@ namespace Saturn.CLI
         }
         private void RunFeature()
         {
+            string? featureName = GetReadLine("Name of feature you want to RUN");
+
+            Task.Run(async () => await CommandHandler.Parse(m_FeatureHandler, "run", featureName));
+        }
+
+        private static string GetReadLine(string message)
+        {
             Console.Clear();
 
-            Console.Write("Enter the name of feature you want to run: ");
-
+            Console.WriteLine(message);
             string? featureName = Console.ReadLine();
             while (string.IsNullOrWhiteSpace(featureName))
             {
                 featureName = Console.ReadLine();
             }
 
-            Task.Run(async () => await CommandHandler.Parse(m_FeatureHandler, "run", featureName));
+            return featureName;
         }
+
         private void RunAllFeature()
         {
             var tasks = new List<Task>();
@@ -120,6 +145,12 @@ namespace Saturn.CLI
 
             Task.WhenAll(tasks);
         }
+        private void EnableFeature()
+        {
+            string? featureName = GetReadLine("Name of feature you want to ENABLE");
+
+            Task.Run(async () => await CommandHandler.Parse(m_FeatureHandler, "enable", featureName));
+        }
         public void ExitMenu()
         {
             CommandHandler.Parse(m_FeatureHandler, "stopall");
@@ -129,15 +160,7 @@ namespace Saturn.CLI
         }
         public void Stop()
         {
-            Console.Clear();
-
-            Console.Write("Enter the name of feature you want to run: ");
-
-            string? featureName = Console.ReadLine();
-            while (string.IsNullOrWhiteSpace(featureName))
-            {
-                featureName = Console.ReadLine();
-            }
+            string? featureName = GetReadLine("Name of feature you want to STOP");
 
             Thread.Sleep(1000);
 

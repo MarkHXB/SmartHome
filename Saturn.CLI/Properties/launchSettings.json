@@ -2,7 +2,7 @@
   "profiles": {
     "Saturn.CLI": {
       "commandName": "Project",
-      "commandLineArgs": "menu run TimeEventSourcer"
+      "commandLineArgs": "menu"
     }
   }
 }
