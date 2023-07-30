@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using System;
 using System.Diagnostics;
 
 namespace Saturn.BL.FeatureUtils
@@ -108,12 +107,7 @@ namespace Saturn.BL.FeatureUtils
 
             process.ErrorDataReceived += (e, d) =>
             {
-                string indicator = "[ ERROR ]";
-                if (string.IsNullOrWhiteSpace(d.Data))
-                {
-                    indicator = "[ INTERRUPTED ]";
-                }
-                string data = string.Join(" ", indicator, d.Data ?? string.Empty);
+                string data = string.Join(" ", "[ ERROR ]", d.Data ?? string.Empty);
                 Output.Add(DateTime.Now, data);
             };
         }
