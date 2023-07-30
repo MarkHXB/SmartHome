@@ -4,7 +4,7 @@ namespace Saturn.BL.FeatureUtils
 {
     public class FeatureDll : Feature
     {
-        public FeatureDll(string featureName, bool isEnabled, string pathToFile) : base(featureName, FeatureResult.Dll, pathToFile, new CancellationTokenSource())
+        public FeatureDll(string featureName, bool isEnabled, string pathToFile) : base(featureName, FeatureResult.Dll, pathToFile)
         {
             IsEnabled = isEnabled;
         }
@@ -38,7 +38,7 @@ namespace Saturn.BL.FeatureUtils
                 OutputDataReceived(process);
                 ErrorDataReceived(process);
 
-                await process.WaitForExitAsync(CancellationTokenSource.Token);
+                process.WaitForExit();
             }
 
         }

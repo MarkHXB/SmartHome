@@ -4,7 +4,7 @@ namespace Saturn.BL.FeatureUtils
 {
     public class FeatureExecutable : Feature
     {
-        public FeatureExecutable(string featureName, bool isEnabled, string pathToFile) : base (featureName, FeatureResult.Exe, pathToFile, new CancellationTokenSource())
+        public FeatureExecutable(string featureName, bool isEnabled, string pathToFile) : base(featureName, FeatureResult.Exe, pathToFile)
         {
             IsEnabled = isEnabled;
         }
@@ -21,14 +21,14 @@ namespace Saturn.BL.FeatureUtils
                 throw new FileNotFoundException(nameof(FeatureName) + " couldn't run because file not found");
             }
 
-            if(args is null || args.Length == 0)
+            if (args is null || args.Length == 0)
             {
                 args = new string[]
                 {
                     "run"
                 };
             }
-            
+
             var processConfig = new ProcessStartInfo
             {
                 FileName = PathToFile,
@@ -39,12 +39,13 @@ namespace Saturn.BL.FeatureUtils
                 CreateNoWindow = true
             };
 
-            using (var process = Process.Start(processConfig))
+            using (Process = Process.Start(processConfig))
             {
-                OutputDataReceived(process);
-                ErrorDataReceived(process);
+                OutputDataReceived(Process);
+                ErrorDataReceived(Process);
 
-                await process.WaitForExitAsync(CancellationTokenSource.Token);
+                Process.WaitForExit();
             }
         }
-    }}
+    }
+}

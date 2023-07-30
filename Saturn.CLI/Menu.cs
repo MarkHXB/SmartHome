@@ -2,7 +2,6 @@
 using Saturn.BL.FeatureUtils;
 using Saturn.BL.Logging;
 using System.Text;
-using System.Threading;
 
 namespace Saturn.CLI
 {
@@ -51,13 +50,16 @@ namespace Saturn.CLI
                     {
                         case ConsoleKey.Escape:
                         case ConsoleKey.Q:
-                            Stop();
+                            ExitMenu();
                             break;
                         case ConsoleKey.D1:
-                            await RunFeature();
+                            RunFeature();
                             break;
                         case ConsoleKey.D2:
-                            await RunAllFeature();
+                            RunAllFeature();
+                            break;
+                        case ConsoleKey.D3:
+                            Stop();
                             break;
                         default:
                             SetStatus("Please enter a valid menu option...");
@@ -69,7 +71,13 @@ namespace Saturn.CLI
 
                 Thread.Sleep(500);
             }
+
+            if (AppInfoResolver.ShouldSaveFeatureOutputToFile())
+            {
+                await m_FeatureHandler.SaveOutputToFile();
+            }
         }
+
         private int GetWorkingThreads()
         {
             int maxThreads;
@@ -87,7 +95,7 @@ namespace Saturn.CLI
 
             return count;
         }
-        private async Task RunFeature()
+        private void RunFeature()
         {
             Console.Clear();
 
@@ -99,18 +107,41 @@ namespace Saturn.CLI
                 featureName = Console.ReadLine();
             }
 
-            await CommandHandler.Parse(m_FeatureHandler, "run", featureName);
+            Task.Run(async () => await CommandHandler.Parse(m_FeatureHandler, "run", featureName));
         }
-        private async Task RunAllFeature()
+        private void RunAllFeature()
         {
-            await CommandHandler.Parse(m_FeatureHandler, new string[] { "runall" });
+            var tasks = new List<Task>();
+
+            foreach (var feature in m_FeatureHandler.GetFeatures())
+            {
+                tasks.Add(Task.Run(async () => await CommandHandler.Parse(m_FeatureHandler, "run", feature.FeatureName)));
+            }
+
+            Task.WhenAll(tasks);
         }
-        public void Stop()
+        public void ExitMenu()
         {
-            m_FeatureHandler.StopAll();
+            CommandHandler.Parse(m_FeatureHandler, "stopall");
             SetStatus("Exiting...");
             SuccessBinding = true;
             Exit = true;
+        }
+        public void Stop()
+        {
+            Console.Clear();
+
+            Console.Write("Enter the name of feature you want to run: ");
+
+            string? featureName = Console.ReadLine();
+            while (string.IsNullOrWhiteSpace(featureName))
+            {
+                featureName = Console.ReadLine();
+            }
+
+            Thread.Sleep(1000);
+
+            CommandHandler.Parse(m_FeatureHandler, "stop", featureName);
         }
         private void SetStatus(string message)
         {

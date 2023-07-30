@@ -37,6 +37,8 @@ namespace Saturn.BL
                 case Commands.ADDFEATURE: featureHandler.AddFeature(value); break;
                 case Commands.ENABLE: featureHandler.EnableFeature(value); break;
                 case Commands.DISABLE: featureHandler.DisableFeature(value); break;
+                case Commands.STOP: featureHandler.Stop(value); break;
+                case Commands.STOPALL: featureHandler.StopAll(); break;
                 default:
                     break;
             }

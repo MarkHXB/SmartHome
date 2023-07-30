@@ -7,6 +7,8 @@
         RUNWHEN,
         ADDFEATURE,
         ENABLE,
-        DISABLE
+        DISABLE,
+        STOP,
+        STOPALL
     }
 }
