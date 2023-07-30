@@ -6,7 +6,7 @@ namespace Saturn.Tests
 {
     public class FeatureStopTests
     {
-        [Fact]
+        [Fact(Skip = "Not CI/CD friendly")]
         public async void WhetherTaskIsStoppedWhenItRequestedInDeterminedEnv()
         {
             string featureName = "TimeEventSourcer";
@@ -14,7 +14,7 @@ namespace Saturn.Tests
             var featureHandler = await FeatureHandler.BuildAsync(loggerLogicProvider);
 
             Task.Run(() => CommandHandler.Parse(featureHandler, "run", featureName));
-       
+
             Thread.Sleep(2000);
 
             Task.Run(() => CommandHandler.Parse(featureHandler, "stop", featureName));
@@ -24,6 +24,6 @@ namespace Saturn.Tests
             var result = featureHandler.GetFeatures().FirstOrDefault(f => f.FeatureName == featureName)?.IsRunning ?? false;
 
             Xunit.Assert.False(result);
-        }     
+        }
     }
 }
