@@ -240,7 +240,7 @@ namespace Saturn.BL.FeatureUtils
         {
             Feature? feature = sender as Feature;
 
-            m_LogInformation($" @BL [{feature.FeatureResult}] {feature.FeatureName} stopped.");
+            m_LogInformation($" @BL [{feature.FeatureResult}] {feature.FeatureName} interrupted.");
         }
 
         #endregion
