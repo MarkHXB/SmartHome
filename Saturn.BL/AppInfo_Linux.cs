@@ -2,8 +2,6 @@
 {
     public static class AppInfo_Linux
     {
-        public const string DllFolderPath = @"/usr/share/saturn";
-
         /// <summary>
         /// To collect features from Features folder
         /// </summary>

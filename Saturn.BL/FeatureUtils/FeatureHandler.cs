@@ -2,7 +2,9 @@
 using Saturn.BL.Persistence;
 using Saturn.Persistance;
 using System.Diagnostics;
-using System.Reflection;
+
+using System.Configuration;
+
 
 namespace Saturn.BL.FeatureUtils
 {
@@ -64,7 +66,7 @@ namespace Saturn.BL.FeatureUtils
             }
             else
             {
-                await featureHandler.Collect();
+                featureHandler.Collect();
 
                 await Cache.Save(featureHandler.m_Features);
             }
@@ -85,7 +87,7 @@ namespace Saturn.BL.FeatureUtils
             }
             else
             {
-                await Collect();
+                Collect();
 
                 await Cache.Save(m_Features);
             }
@@ -139,17 +141,9 @@ namespace Saturn.BL.FeatureUtils
                 m_LogInformation($" @BL [{feature.FeatureResult}] {feature.FeatureName} finished");
             }
         }
-        public async Task Collect()
+        public void Collect()
         {
-            if (AppInfo.IsWindows)
-            {
-                CollectAlternativExecutables();
-                await CollectExecutables();
-            }
-            else
-            {
-                await CollectDlls();
-            }
+            CollectAlternativExecutables();
         }
         public void AddFeature(string? pathToFeature)
         {
@@ -307,12 +301,12 @@ namespace Saturn.BL.FeatureUtils
                 return feature;
             }
 
-            if (!Directory.Exists(AppInfo.AlternativeFeatureFolderPath))
+            if (!Directory.Exists(AppInfo.FeaturesFolderPath))
             {
-                Directory.CreateDirectory(AppInfo.AlternativeFeatureFolderPath);
+                Directory.CreateDirectory(AppInfo.FeaturesFolderPath);
             }
 
-            string destinationExePath = Path.Combine(AppInfo.AlternativeFeatureFolderPath, Path.GetFileName(exeFilePath));
+            string destinationExePath = Path.Combine(AppInfo.FeaturesFolderPath, Path.GetFileName(exeFilePath));
             using (var source = new FileStream(exeFilePath, FileMode.Open, FileAccess.Read))
             using (var destination = new FileStream(destinationExePath, FileMode.Create, FileAccess.Write))
             {
@@ -326,7 +320,7 @@ namespace Saturn.BL.FeatureUtils
         private bool FeaturePathIsSolutionFile(string path) => Path.GetExtension(path) == ".sln";
         private void CollectAlternativExecutables()
         {
-            string path = AppInfo.AlternativeFeatureFolderPath;
+            string path = AppInfo.FeaturesFolderPath;
 
             if (!AppInfoResolver.UseAlternativeFeatures())
             {
@@ -342,47 +336,6 @@ namespace Saturn.BL.FeatureUtils
             {
                 ParseExecutableToFeature(filePath);
             }
-        }
-        private async Task CollectDlls()
-        {
-            if (!Directory.Exists(AppInfo_Linux.DllFolderPath))
-            {
-                Directory.CreateDirectory(AppInfo_Linux.DllFolderPath);
-                throw new Exception($"{nameof(AppInfo_Linux.DllFolderPath)} folder created successfully.\nNow you should add at least one dll to work with!");
-            }
-
-            await Task.Run(() =>
-            {
-                string[] dlls = Directory.GetFiles(AppInfo_Linux.DllFolderPath);
-
-                foreach (var dllFilePath in dlls)
-                {
-                    ParseDllToFeature(dllFilePath);
-                }
-            });
-        }
-        private async Task CollectExecutables()
-        {
-            if (!Directory.Exists(AppInfo_Windows.ExecutablesFolderPath))
-            {
-                Directory.CreateDirectory(AppInfo_Windows.ExecutablesFolderPath);
-                throw new Exception($"{nameof(AppInfo_Windows.ExecutablesFolderPath)} folder created successfully.\nNow you should add at least one exe to work with!");
-            }
-
-            await Task.Run(() =>
-            {
-                string[] folderPaths = Directory.GetDirectories(AppInfo_Windows.ExecutablesFolderPath);
-
-                foreach (var dotnetVersionFolderPath in folderPaths)
-                {
-                    string[] files = Directory.GetFiles(dotnetVersionFolderPath);
-
-                    foreach (var filePath in files)
-                    {
-                        ParseExecutableToFeature(filePath);
-                    }
-                }
-            });
         }
         private void RegisterFeature(Feature? feature)
         {

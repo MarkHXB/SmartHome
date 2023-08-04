@@ -2,8 +2,6 @@
 {
     public static class AppInfo_Windows
     {
-        public const string ExecutablesFolderPath = @"C:\Shared\Release";
-
         /// <summary>
         /// To collect features from Features folder
         /// </summary>

@@ -10,7 +10,7 @@ namespace Saturn.BL
         public static readonly string AppName = "Saturn";
         private static readonly string Appdata = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create);
         public static readonly string CacheFolderPath = Path.Combine(Appdata, AppName, "Cache");
-        public static readonly string AlternativeFeatureFolderPath = Path.Combine(Appdata, AppName, "Features");
+        public static readonly string FeaturesFolderPath = Path.Combine(Appdata, AppName, "Features");
         public static readonly string LogFolderPath = Path.Combine(Appdata, AppName, "Log");
         public static readonly string LogFilePath_CLI = Path.Combine(LogFolderPath, DateTime.Now.ToShortDateString()+"_CLI.log");
         public static readonly string LogFilePath_API = Path.Combine(LogFolderPath, DateTime.Now.ToShortDateString() + "_API.log");

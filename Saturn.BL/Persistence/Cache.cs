@@ -45,7 +45,7 @@ namespace Saturn.Persistance
 
             return features;
         }
-
+        
         private static async Task<IEnumerable<FeatureExecutable>> LoadExes(string specifiedFileName = "")
         {
             string _filePath = FilePath;
@@ -66,7 +66,7 @@ namespace Saturn.Persistance
             {
                 var raw = await streamReader.ReadToEndAsync();
 
-                entities = JsonConvert.DeserializeObject<IEnumerable<FeatureExecutable>>(raw) ?? Array.Empty<FeatureExecutable>();
+                entities = (IEnumerable<FeatureExecutable>)(JsonConvert.DeserializeObject<IEnumerable<object>>(raw) ?? Array.Empty<FeatureExecutable>());
             }
 
             return entities;
@@ -96,6 +96,7 @@ namespace Saturn.Persistance
 
             return entities;
         }
+
         public static async Task Save(IEnumerable<Feature> entities, string specifiedFileName = "")
         {
             string _filePath = FilePath;
