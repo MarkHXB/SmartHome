@@ -2,7 +2,7 @@
   "profiles": {
     "Saturn.CLI": {
       "commandName": "Project",
-      "commandLineArgs": "menu"
+      "commandLineArgs": "cli run asd"
     }
   }
 }

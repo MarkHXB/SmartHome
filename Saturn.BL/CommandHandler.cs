@@ -23,7 +23,7 @@ namespace Saturn.BL
         }
         private static async Task HandleCommand(FeatureHandler featureHandler, string? command, string? value)
         {
-            ConfigHandler.Build();
+            ConfigHandler.Build(featureHandler.LogInformation);
 
             if (string.IsNullOrWhiteSpace(command))
             {

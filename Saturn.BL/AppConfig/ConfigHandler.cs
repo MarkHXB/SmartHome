@@ -6,15 +6,24 @@ namespace Saturn.BL.AppConfig
 {
     public class ConfigHandler
     {
+        private const string _saveMessage = " @Config ConfigHandler saved.";
+        private const string _loadMessage = " @Config ConfigHandler loaded.";
+        private const string _restoreMessageStart = " @Config ConfigHandler restoring started.";
+        private const string _restoreMessageFinish = " @Config ConfigHandler restoring finished.";
+        private const string _buildMessage = " @Config ConfigHandler successfully built.";
         private static bool _initialized = false;
 
-        public static void Build()
+        private static Action<string> m_logInformation;
+
+        public static void Build(Action<string> logInformation)
         {
+            m_logInformation = logInformation;
+
             if (_initialized)
             {
                 if (ShouldUpdateConfigFile())
                 {
-                    Save().GetAwaiter().GetResult();              
+                    Save().GetAwaiter().GetResult();
                 }
                 return;
             }
@@ -27,6 +36,8 @@ namespace Saturn.BL.AppConfig
             Load().GetAwaiter().GetResult();
 
             _initialized = true;
+
+            m_logInformation(_buildMessage);
         }
 
         public static async Task Load()
@@ -63,6 +74,8 @@ namespace Saturn.BL.AppConfig
                     }
                 }
             }
+
+            m_logInformation(_loadMessage);
         }
 
         public static async Task Save()
@@ -91,6 +104,8 @@ namespace Saturn.BL.AppConfig
             }
 
             await File.WriteAllTextAsync(AppInfo.ConfigFilePath, data, Encoding.UTF8);
+
+            m_logInformation(_saveMessage);
         }
 
         private static bool IsConfigFileValid()
@@ -109,19 +124,23 @@ namespace Saturn.BL.AppConfig
 
         private static void RestoreConfigFile()
         {
+            m_logInformation(_restoreMessageStart);
+
             if (!File.Exists(AppInfo.ConfigFilePath))
             {
                 File.Create(AppInfo.ConfigFilePath).Close();
             }
 
             Save().GetAwaiter().GetResult();
+
+            m_logInformation(_restoreMessageFinish);
         }
 
         private static bool ShouldUpdateConfigFile()
         {
             if (File.Exists(AppInfo.ConfigFilePath))
             {
-                if(File.GetLastAccessTime(AppInfo.ConfigFilePath).AddDays(1) < DateTime.Now) 
+                if (File.GetLastAccessTime(AppInfo.ConfigFilePath).AddDays(1) < DateTime.Now)
                 {
                     return true;
                 }

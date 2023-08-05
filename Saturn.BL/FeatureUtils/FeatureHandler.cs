@@ -17,8 +17,8 @@ namespace Saturn.BL.FeatureUtils
         new CacheLoadRecord("dll","FeatureDlls"),
         new CacheLoadRecord("exe","FeatureExecutables"),
     };
-        public Action<string> m_LogInformation;
-        public Action<string> m_LogWarning;
+        public Action<string> LogInformation;
+        public Action<string> LogWarning;
         private bool s_Built = false;
         private IList<Feature> m_Features;
 
@@ -37,8 +37,8 @@ namespace Saturn.BL.FeatureUtils
             _ = logInformation ?? throw new ArgumentNullException(nameof(logInformation));
             _ = logWarning ?? throw new ArgumentNullException(nameof(logWarning));
 
-            m_LogInformation = logInformation;
-            m_LogWarning = logWarning;
+            LogInformation = logInformation;
+            LogWarning = logWarning;
             m_Features = new List<Feature>();
         }
 
@@ -46,8 +46,8 @@ namespace Saturn.BL.FeatureUtils
         {
             _ = loggerLogicProvider ?? throw new ArgumentNullException(nameof(loggerLogicProvider));
 
-            m_LogInformation = loggerLogicProvider.LogInformation;
-            m_LogWarning = loggerLogicProvider.LogWarning;
+            LogInformation = loggerLogicProvider.LogInformation;
+            LogWarning = loggerLogicProvider.LogWarning;
             m_Features = new List<Feature>();
         }
 
@@ -105,11 +105,11 @@ namespace Saturn.BL.FeatureUtils
 
             _ = feature ?? throw new ArgumentNullException(nameof(feature));
 
-            m_LogInformation($" @BL [{feature.FeatureResult}] {feature.FeatureName} started");
+            LogInformation($" @BL [{feature.FeatureResult}] {feature.FeatureName} started");
 
             await feature.Run(args);
 
-            m_LogInformation($" @BL [{feature.FeatureResult}] {feature.FeatureName} finished");
+            LogInformation($" @BL [{feature.FeatureResult}] {feature.FeatureName} finished");
         }
         public async Task<string> TryToRunReturnOutput(string? featureName = "", string[]? args = null)
         {
@@ -122,11 +122,11 @@ namespace Saturn.BL.FeatureUtils
 
             _ = feature ?? throw new ArgumentNullException(nameof(feature));
 
-            m_LogInformation($" @BL [{feature.FeatureResult}] {feature.FeatureName} started");
+            LogInformation($" @BL [{feature.FeatureResult}] {feature.FeatureName} started");
 
             await feature.Run(args);
 
-            m_LogInformation($" @BL [{feature.FeatureResult}] {feature.FeatureName} finished");
+            LogInformation($" @BL [{feature.FeatureResult}] {feature.FeatureName} finished");
 
             return feature.OutputToString();
         }
@@ -134,11 +134,11 @@ namespace Saturn.BL.FeatureUtils
         {
             foreach (var feature in m_Features)
             {
-                m_LogInformation($" @BL [{feature.FeatureResult}] {feature.FeatureName} started");
+                LogInformation($" @BL [{feature.FeatureResult}] {feature.FeatureName} started");
 
                 await feature.Run();
 
-                m_LogInformation($" @BL [{feature.FeatureResult}] {feature.FeatureName} finished");
+                LogInformation($" @BL [{feature.FeatureResult}] {feature.FeatureName} finished");
             }
         }
         public void Collect()
@@ -170,7 +170,7 @@ namespace Saturn.BL.FeatureUtils
             {
                 feature.Enable();
                 IsModified = true;
-                m_LogInformation($" @BL {feature.FeatureName} enabled");
+                LogInformation($" @BL {feature.FeatureName} enabled");
             }
         }
         public void DisableFeature(string? featureName)
@@ -181,7 +181,7 @@ namespace Saturn.BL.FeatureUtils
             {
                 feature.Disable();
                 IsModified = true;
-                m_LogInformation($" @BL {feature.FeatureName} disabled");
+                LogInformation($" @BL {feature.FeatureName} disabled");
             }
         }
         public void Stop(string? featureName) 
@@ -234,7 +234,7 @@ namespace Saturn.BL.FeatureUtils
         {
             Feature? feature = sender as Feature;
 
-            m_LogInformation($" @BL [{feature.FeatureResult}] {feature.FeatureName} interrupted.");
+            LogInformation($" @BL [{feature.FeatureResult}] {feature.FeatureName} interrupted.");
         }
 
         #endregion
@@ -247,7 +247,7 @@ namespace Saturn.BL.FeatureUtils
 
             if (!FeaturePathIsSolutionFile(pathToFeature ?? string.Empty))
             {
-                m_LogWarning($"@BL Failed to identify solution {pathToFeature}. Try to add feature like this:addfeature ...folder/asd.sln");
+                LogWarning($"@BL Failed to identify solution {pathToFeature}. Try to add feature like this:addfeature ...folder/asd.sln");
                 return feature;
             }
 
@@ -297,7 +297,7 @@ namespace Saturn.BL.FeatureUtils
 
             if (string.IsNullOrWhiteSpace(exeFilePath))
             {
-                m_LogWarning($"@BL Under {executableRootPath} not found any executable file.");
+                LogWarning($"@BL Under {executableRootPath} not found any executable file.");
                 return feature;
             }
 
@@ -343,7 +343,7 @@ namespace Saturn.BL.FeatureUtils
 
             if (m_Features.Any(f => f.FeatureName == feature.FeatureName))
             {
-                m_LogInformation($" @BL {feature.FeatureName} is already regiestered to <{feature.FeatureResult}> features.");
+                LogInformation($" @BL {feature.FeatureName} is already regiestered to <{feature.FeatureResult}> features.");
 
                 return;
             }
@@ -354,7 +354,7 @@ namespace Saturn.BL.FeatureUtils
 
             IsModified = true;
 
-            m_LogInformation($" @BL [{feature.FeatureName}] <{feature.FeatureResult}> has added to feautres");
+            LogInformation($" @BL [{feature.FeatureName}] <{feature.FeatureResult}> has added to feautres");
         }
         private Feature? ParseFeatureByFilePath(string? pathToFeature, bool enableFeature)
         {
