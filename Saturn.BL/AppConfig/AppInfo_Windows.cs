@@ -5,7 +5,7 @@
         /// <summary>
         /// To collect features from Features folder
         /// </summary>
-        public static bool UseAlternativeFeatures = false;
+        public static bool UseAlternativeFeatures = true;
 
         /// <summary>
         /// Start without cache loading

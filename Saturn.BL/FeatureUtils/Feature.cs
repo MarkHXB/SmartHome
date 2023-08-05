@@ -141,7 +141,11 @@ namespace Saturn.BL.FeatureUtils
 
         public override string ToString()
         {
-            return $"{nameof(FeatureName)} : {FeatureName}\n";
+            return $"{FeatureName} : [\n" +
+                $"\tIs Running: {IsRunning}\n" +
+                 $"\tRegistration Date: {RegistrationDate}\n" +
+                  $"\tType: {FeatureResult}\n" +
+                   $"\tIs Enabled: {IsEnabled}\n],\n";
         }
 
         #endregion
