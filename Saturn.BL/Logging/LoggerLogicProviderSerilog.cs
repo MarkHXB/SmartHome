@@ -1,5 +1,6 @@
 ﻿namespace Saturn.BL.Logging
 {
+    using Saturn.BL.AppConfig;
     using Serilog;
     using Serilog.Core;
 

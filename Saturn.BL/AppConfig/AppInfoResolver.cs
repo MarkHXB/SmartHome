@@ -1,4 +1,4 @@
-﻿namespace Saturn.BL
+﻿namespace Saturn.BL.AppConfig
 {
     public static class AppInfoResolver
     {

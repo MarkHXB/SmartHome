@@ -1,6 +1,5 @@
-﻿#define DEBUG
-
-using Saturn.BL;
+﻿using Saturn.BL;
+using Saturn.BL.AppConfig;
 using Saturn.BL.FeatureUtils;
 using Saturn.BL.Logging;
 using Saturn.CLI;
@@ -10,6 +9,8 @@ class Program
 {
     static async Task Main(string[] args)
     {
+        ConfigHandler.Build();
+
         string runMode = args.FirstOrDefault() ?? string.Empty;
         var tempList = args.ToList();
         tempList.Remove(runMode);
@@ -31,12 +32,9 @@ class Program
     private static async Task CallCli(string[] args)
     {
         FeatureHandler? featureHandler;
-
+        ILoggerLogicProvider loggerLogicProvider = new LoggerLogicProviderSerilog();
         try
         {
-
-            ILoggerLogicProvider loggerLogicProvider = new LoggerLogicProviderSerilog();
-
             featureHandler = await FeatureHandler.BuildAsync(loggerLogicProvider);
 
             await CommandHandler.Parse(featureHandler, args);
@@ -52,9 +50,7 @@ class Program
         }
         catch (Exception ex)
         {
-#if DEBUG
-            await Console.Out.WriteLineAsync(ex.Message);
-#endif
+            loggerLogicProvider.LogWarning(ex.Message);
         }
     }
     private static async Task CallMenu()

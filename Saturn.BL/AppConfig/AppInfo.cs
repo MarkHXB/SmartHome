@@ -1,9 +1,9 @@
 ﻿using Saturn.BL.FeatureUtils;
 using System.Runtime.InteropServices;
 
-namespace Saturn.BL
-{  
-    public static class AppInfo 
+namespace Saturn.BL.AppConfig
+{
+    public static class AppInfo
     {
         public static readonly bool IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
         public static readonly bool IsLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
@@ -11,8 +11,9 @@ namespace Saturn.BL
         private static readonly string Appdata = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create);
         public static readonly string CacheFolderPath = Path.Combine(Appdata, AppName, "Cache");
         public static readonly string FeaturesFolderPath = Path.Combine(Appdata, AppName, "Features");
+        public static readonly string ConfigFilePath = Path.Combine(Appdata, AppName, "Config.json");
         public static readonly string LogFolderPath = Path.Combine(Appdata, AppName, "Log");
-        public static readonly string LogFilePath_CLI = Path.Combine(LogFolderPath, DateTime.Now.ToShortDateString()+"_CLI.log");
+        public static readonly string LogFilePath_CLI = Path.Combine(LogFolderPath, DateTime.Now.ToShortDateString() + "_CLI.log");
         public static readonly string LogFilePath_API = Path.Combine(LogFolderPath, DateTime.Now.ToShortDateString() + "_API.log");
         public static readonly string FeaturesOutputFolderPath = Path.Combine(Appdata, AppName, "Output");
 

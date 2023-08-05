@@ -1,6 +1,6 @@
-﻿namespace Saturn.BL
+﻿namespace Saturn.BL.AppConfig
 {
-    public static class AppInfo_Linux
+    public class AppInfo_Linux
     {
         /// <summary>
         /// To collect features from Features folder
