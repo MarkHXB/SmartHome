@@ -184,7 +184,7 @@ namespace Saturn.BL.FeatureUtils
                 LogInformation($" @BL {feature.FeatureName} disabled");
             }
         }
-        public void Stop(string? featureName) 
+        public void Stop(string? featureName)
         {
             if (string.IsNullOrWhiteSpace(featureName))
             {
@@ -251,70 +251,95 @@ namespace Saturn.BL.FeatureUtils
                 return feature;
             }
 
-            string command = $"dotnet publish {pathToFeature} -r win-x64";
-
-            ProcessStartInfo config = new ProcessStartInfo()
+            if (AppInfo.IsWindows)
             {
-                FileName = "dotnet",
-                Arguments = command,
-                RedirectStandardOutput = true,
-                UseShellExecute = false,
-                RedirectStandardError = true,
-                CreateNoWindow = true,
-            };
-            Process proc = new Process();
-            proc.StartInfo = config;
+                string pathToBuild = $"C:/tmp/{Path.GetFileNameWithoutExtension(pathToFeature)}";
 
-            proc.Start();
-            proc.WaitForExit();
+                string command = $"dotnet publish {pathToFeature} -r win-x64 -o {pathToBuild}";
 
-            string output = proc.StandardOutput.ReadToEnd();
-            string[] tokens = output.Split(Environment.NewLine);
-
-            string rawExePath = tokens[tokens.Length - 2];
-            int indexOfC = rawExePath.IndexOf("C:");
-            int indexOfD = rawExePath.IndexOf("D:");
-            string executableRootPath = string.Empty;
-            if (indexOfC != -1)
-            {
-                executableRootPath = rawExePath.Substring(indexOfC);
-            }
-            else if (indexOfD != 1)
-            {
-                executableRootPath = rawExePath.Substring(indexOfD);
-            }
-
-            string[] files = Directory.GetFiles(executableRootPath);
-            string exeFilePath = string.Empty;
-            foreach (var file in files)
-            {
-                if (Path.GetExtension(file) == ".exe")
+                ProcessStartInfo config = new ProcessStartInfo()
                 {
-                    exeFilePath = file;
-                    break;
+                    FileName = "dotnet",
+                    Arguments = command,
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                    RedirectStandardError = true,
+                    CreateNoWindow = true,
+                };
+                Process proc = new Process();
+                proc.StartInfo = config;
+                proc.Start();
+                proc.WaitForExit();
+
+                string[]files = Directory.GetFiles(pathToBuild, $"{Path.GetFileNameWithoutExtension(pathToFeature)}*.exe", SearchOption.AllDirectories);
+                string exeFilePath = files.Length > 0 ? files[0] : string.Empty;
+
+                if (string.IsNullOrWhiteSpace(exeFilePath))
+                {
+                    LogWarning($"@BL Under {pathToBuild} not found any executable file.");
+                    return feature;
                 }
-            }
 
-            if (string.IsNullOrWhiteSpace(exeFilePath))
+                if (!Directory.Exists(AppInfo.FeaturesFolderPath))
+                {
+                    Directory.CreateDirectory(AppInfo.FeaturesFolderPath);
+                }
+
+                string destinationExePath = Path.Combine(AppInfo.FeaturesFolderPath, Path.GetFileName(exeFilePath));
+                using (var source = new FileStream(exeFilePath, FileMode.Open, FileAccess.Read))
+                using (var destination = new FileStream(destinationExePath, FileMode.Create, FileAccess.Write))
+                {
+                    source.CopyTo(destination);
+                }
+
+                feature = ParseFeatureByFilePath(destinationExePath, AppInfoResolver.ShouldEnableNewlyAddedFeature());
+
+                Directory.Delete(pathToBuild, true);
+            }
+            else
             {
-                LogWarning($"@BL Under {executableRootPath} not found any executable file.");
-                return feature;
+                string pathToBuild = $"/tmp/{Path.GetFileNameWithoutExtension(pathToFeature)}";
+
+                string command = $"dotnet publish {pathToFeature} -r linux-x64 -o {pathToBuild}";
+
+                ProcessStartInfo config = new ProcessStartInfo()
+                {
+                    FileName = "dotnet",
+                    Arguments = command,
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                };
+                Process proc = new Process();
+                proc.StartInfo = config;
+                proc.Start();
+                proc.WaitForExit();
+
+                string[] files = Directory.GetFiles(pathToBuild, $"{Path.GetFileNameWithoutExtension(pathToFeature)}*.dll", SearchOption.AllDirectories);
+                string dllFilePath = files.Length > 0 ? files[0] : string.Empty;
+
+                if (string.IsNullOrWhiteSpace(dllFilePath))
+                {
+                    LogWarning($"@BL Under {pathToBuild} not found any dll file.");
+                    return feature;
+                }
+
+                if (!Directory.Exists(AppInfo.FeaturesFolderPath))
+                {
+                    Directory.CreateDirectory(AppInfo.FeaturesFolderPath);
+                }
+
+                string destinationExePath = Path.Combine(AppInfo.FeaturesFolderPath, Path.GetFileName(dllFilePath));
+                using (var source = new FileStream(dllFilePath, FileMode.Open, FileAccess.Read))
+                using (var destination = new FileStream(destinationExePath, FileMode.Create, FileAccess.Write))
+                {
+                    source.CopyTo(destination);
+                }
+
+                feature = ParseFeatureByFilePath(destinationExePath, AppInfoResolver.ShouldEnableNewlyAddedFeature());
+
+                Directory.Delete(pathToBuild, true);
             }
-
-            if (!Directory.Exists(AppInfo.FeaturesFolderPath))
-            {
-                Directory.CreateDirectory(AppInfo.FeaturesFolderPath);
-            }
-
-            string destinationExePath = Path.Combine(AppInfo.FeaturesFolderPath, Path.GetFileName(exeFilePath));
-            using (var source = new FileStream(exeFilePath, FileMode.Open, FileAccess.Read))
-            using (var destination = new FileStream(destinationExePath, FileMode.Create, FileAccess.Write))
-            {
-                source.CopyTo(destination);
-            }
-
-            feature = ParseFeatureByFilePath(destinationExePath, AppInfoResolver.ShouldEnableNewlyAddedFeature());
-
+            
             return feature;
         }
         private bool FeaturePathIsSolutionFile(string path) => Path.GetExtension(path) == ".sln";
@@ -375,24 +400,6 @@ namespace Saturn.BL.FeatureUtils
             else if (extension == ".dll")
             {
                 feature = new FeatureDll(featureName, enableFeature, pathToFeature);
-            }
-
-            return feature;
-        }
-        private Feature? ParseDllToFeature(string? pathToDll)
-        {
-            if (string.IsNullOrWhiteSpace(pathToDll))
-            {
-                return null;
-            }
-
-            Feature? feature = null;
-
-            if (Path.GetExtension(pathToDll) == ".dll" && !pathToDll.Contains("Microsoft"))
-            {
-                string featureName = Path.GetFileNameWithoutExtension(pathToDll);
-
-                RegisterFeature(new FeatureDll(featureName, AppInfoResolver.ShouldEnableNewlyAddedFeature(), pathToDll));
             }
 
             return feature;

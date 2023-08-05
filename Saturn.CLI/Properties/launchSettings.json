@@ -1,8 +1,8 @@
 {
   "profiles": {
     "Saturn.CLI": {
-      "commandName": "Project",
-      "commandLineArgs": "cli run asd"
+        "commandName": "Project",
+        "commandLineArgs": "cli addfeature C:\\Users\\sasli\\source\\repos\\BirthDayReminder\\Reminder.sln"
     }
   }
 }

@@ -67,18 +67,7 @@ namespace Saturn.API.Controllers
 
             return Ok(features);
         }
-        [HttpPost]
-        public async Task<IActionResult> Run(string? featureName)
-        {
-            if (_featureHandler is null)
-            {
-                return ReportExceptionToLog(LogLevel.LogWarning, $" @API Featurehandler is null. Call from: Features/Run/{featureName}");
-            }
-
-            string output = await _featureHandler.TryToRunReturnOutput(featureName);
-
-            return Ok(output);
-        }
+        
         [HttpPost]
         public async Task<IActionResult> Enable(string? featureName)
         {
@@ -94,6 +83,7 @@ namespace Saturn.API.Controllers
 
             return Ok($"Feature {featureName} enabled");
         }
+
         [HttpPost]
         public async Task<IActionResult> Disable(string? featureName)
         {
@@ -109,6 +99,20 @@ namespace Saturn.API.Controllers
 
             return Ok($"Feature {featureName} disabled");
         }
+
+        [HttpPost]
+        public async Task<IActionResult> Run(string? featureName)
+        {
+            if (_featureHandler is null)
+            {
+                return ReportExceptionToLog(LogLevel.LogWarning, $" @API Featurehandler is null. Call from: Features/Run/{featureName}");
+            }
+
+            string output = await _featureHandler.TryToRunReturnOutput(featureName);
+
+            return Ok(output);
+        }
+
         [HttpPost]
         public async Task<IActionResult> RunAll()
         {
