@@ -9,8 +9,6 @@ class Program
 {
     static async Task Main(string[] args)
     {
-        ConfigHandler.Build();
-
         string runMode = args.FirstOrDefault() ?? string.Empty;
         var tempList = args.ToList();
         tempList.Remove(runMode);

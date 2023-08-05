@@ -1,4 +1,5 @@
-﻿using Saturn.BL.FeatureUtils;
+﻿using Saturn.BL.AppConfig;
+using Saturn.BL.FeatureUtils;
 
 namespace Saturn.BL
 {
@@ -22,6 +23,8 @@ namespace Saturn.BL
         }
         private static async Task HandleCommand(FeatureHandler featureHandler, string? command, string? value)
         {
+            ConfigHandler.Build();
+
             if (string.IsNullOrWhiteSpace(command))
             {
                 throw new ArgumentNullException(nameof(command));

@@ -10,7 +10,14 @@ namespace Saturn.BL.AppConfig
 
         public static void Build()
         {
-            if (_initialized) return;
+            if (_initialized)
+            {
+                if (ShouldUpdateConfigFile())
+                {
+                    Save().GetAwaiter().GetResult();              
+                }
+                return;
+            }
 
             if (!IsConfigFileValid())
             {
@@ -108,6 +115,19 @@ namespace Saturn.BL.AppConfig
             }
 
             Save().GetAwaiter().GetResult();
+        }
+
+        private static bool ShouldUpdateConfigFile()
+        {
+            if (File.Exists(AppInfo.ConfigFilePath))
+            {
+                if(File.GetLastAccessTime(AppInfo.ConfigFilePath).AddDays(1) < DateTime.Now) 
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }
