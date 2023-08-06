@@ -1,11 +1,10 @@
-﻿using Saturn.BL;
-using Saturn.BL.AppConfig;
+﻿using Saturn.BL.AppConfig;
 using Saturn.BL.FeatureUtils;
 using Saturn.BL.Logging;
 using Saturn.Persistance;
 using System.Text;
 
-namespace Saturn.CLI
+namespace Saturn.BL
 {
     public class Menu
     {
@@ -17,10 +16,9 @@ namespace Saturn.CLI
 
         #region Fields
 
+        private FeatureHandler featureHandler;
         private bool SuccessBinding = false;
         public StringBuilder StatusQueue;
-        private FeatureHandler m_FeatureHandler;
-        private ILoggerLogicProvider m_LoggerLogicProvider;
         private int retryCounts = 0;
 
         #endregion
@@ -34,13 +32,11 @@ namespace Saturn.CLI
         public Menu()
         {
             StatusQueue = new StringBuilder();
-            m_LoggerLogicProvider = new LoggerLogicProviderSerilog();
+            featureHandler = VirtualBox.GetInstance().FeatureHandler;
         }
 
         public async Task Run()
         {
-            m_FeatureHandler = await FeatureHandler.BuildAsync(m_LoggerLogicProvider);
-
             while (!Exit)
             {
                 Refresh();
@@ -85,22 +81,13 @@ namespace Saturn.CLI
 
                 Thread.Sleep(500);
             }
-
-            if (m_FeatureHandler.IsModified)
-            {
-                await Cache.Save(m_FeatureHandler.GetFeatures());
-            }
-            if (AppInfoResolver.ShouldSaveFeatureOutputToFile())
-            {
-                await m_FeatureHandler.SaveOutputToFile();
-            }
         }
 
         private void GetAllFeature()
         {
             Console.Clear();
 
-            foreach (var feautre in m_FeatureHandler.GetFeatures())
+            foreach (var feautre in featureHandler.GetFeatures())
             {
                 Console.WriteLine(feautre);
             }
@@ -113,7 +100,7 @@ namespace Saturn.CLI
         {
             string? featureName = GetReadLine("Name of feature you want to GET");
 
-            var feautre = m_FeatureHandler.GetFeatures().FirstOrDefault(fe => fe.FeatureName.Equals(featureName));
+            var feautre = featureHandler.GetFeatures().FirstOrDefault(fe => fe.FeatureName.Equals(featureName));
             if (feautre != null)
             {
                 Console.WriteLine(feautre);
@@ -127,7 +114,7 @@ namespace Saturn.CLI
         {
             string? featureName = GetReadLine("Name of feature you want to DISABLE");
 
-            Task.Run(async () => await CommandHandler.Parse(m_FeatureHandler, "disable", featureName));
+            Task.Run(async () => await CommandHandler.Parse(featureHandler, "disable", featureName));
         }
 
         private int GetWorkingThreads()
@@ -152,7 +139,7 @@ namespace Saturn.CLI
         {
             string? featureName = GetReadLine("Name of feature you want to RUN");
 
-            Task.Run(async () => await CommandHandler.Parse(m_FeatureHandler, "run", featureName));
+            Task.Run(async () => await CommandHandler.Parse(featureHandler, "run", featureName));
         }
 
         private static string GetReadLine(string message)
@@ -173,9 +160,9 @@ namespace Saturn.CLI
         {
             var tasks = new List<Task>();
 
-            foreach (var feature in m_FeatureHandler.GetFeatures())
+            foreach (var feature in featureHandler.GetFeatures())
             {
-                tasks.Add(Task.Run(async () => await CommandHandler.Parse(m_FeatureHandler, "run", feature.FeatureName)));
+                tasks.Add(Task.Run(async () => await CommandHandler.Parse(featureHandler, "run", feature.FeatureName)));
             }
 
             Task.WhenAll(tasks);
@@ -185,12 +172,12 @@ namespace Saturn.CLI
         {
             string? featureName = GetReadLine("Name of feature you want to ENABLE");
 
-            Task.Run(async () => await CommandHandler.Parse(m_FeatureHandler, "enable", featureName));
+            Task.Run(async () => await CommandHandler.Parse(featureHandler, "enable", featureName));
         }
 
         public void ExitMenu()
         {
-            CommandHandler.Parse(m_FeatureHandler, "stopall");
+            CommandHandler.Parse(featureHandler, "stopall");
             SetStatus("Exiting...");
             SuccessBinding = true;
             Exit = true;
@@ -202,7 +189,7 @@ namespace Saturn.CLI
 
             Thread.Sleep(1000);
 
-            CommandHandler.Parse(m_FeatureHandler, "stop", featureName);
+            CommandHandler.Parse(featureHandler, "stop", featureName);
         }
 
         private void SetStatus(string message)
@@ -234,7 +221,7 @@ namespace Saturn.CLI
             StringBuilder sb = new StringBuilder();
 
             sb.Append(Environment.NewLine);
-           
+
             sb.AppendLine("1, Run <Name>");
             sb.AppendLine("2, RunAll");
             sb.AppendLine("3, Stop <Name>");
