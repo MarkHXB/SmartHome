@@ -15,7 +15,7 @@ namespace Saturn.BL.AppConfig
         public static readonly string LogFolderPath = Path.Combine(Appdata, AppName, "Log");
         public static readonly string LogFilePath_CLI = Path.Combine(LogFolderPath, DateTime.Now.ToShortDateString() + "_CLI.log");
         public static readonly string LogFilePath_API = Path.Combine(LogFolderPath, DateTime.Now.ToShortDateString() + "_API.log");
-        public static readonly string FeaturesOutputFolderPath = Path.Combine(Appdata, AppName, "Output");
+        public static readonly string FeaturesOutputFolderPath = Path.Combine(Appdata, AppName, "Output"); 
 
         public static string GetFeatureFileName(Feature feature)
         {

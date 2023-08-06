@@ -66,7 +66,7 @@ namespace Saturn.Persistance
             {
                 var raw = await streamReader.ReadToEndAsync();
 
-                entities = (IEnumerable<FeatureExecutable>)(JsonConvert.DeserializeObject<IEnumerable<object>>(raw) ?? Array.Empty<FeatureExecutable>());
+                entities = JsonConvert.DeserializeObject<IEnumerable<FeatureExecutable>>(raw) ?? Array.Empty<FeatureExecutable>();
             }
 
             return entities;

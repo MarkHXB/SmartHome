@@ -59,6 +59,8 @@ namespace Saturn.BL.FeatureUtils
         {
             FeatureHandler featureHandler = new FeatureHandler(loggerLogicProvider);
 
+            ConfigHandler.Build(featureHandler.LogInformation);
+
             if (AppInfoResolver.UseLoadFromCache())
             {
                 var features = await Cache.Load(cacheLoadRecords ?? s_CacheLoadRecords);

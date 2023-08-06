@@ -45,6 +45,8 @@ class Program
             {
                 await featureHandler.SaveOutputToFile();
             }
+
+            await ConfigHandler.Save();
         }
         catch (Exception ex)
         {

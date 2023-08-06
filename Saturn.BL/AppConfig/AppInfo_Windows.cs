@@ -10,7 +10,7 @@
         /// <summary>
         /// Start without cache loading
         /// </summary>
-        public static bool LoadFromCache = false;
+        public static bool LoadFromCache = true;
 
         /// <summary>
         /// Collect and save the features that they are enabled
@@ -21,5 +21,10 @@
         /// Save the feature standard output which comes from the process or thread
         /// </summary>
         public static bool SaveFeatureOutputToFile = true;
+
+        /// <summary>
+        /// This is for automatic cache load, if not change then cache load, if changed then collect
+        /// </summary>
+        public static DateTime LastAccessTimeOfFeatureCache = DateTime.MinValue;
     }
 }
