@@ -2,6 +2,8 @@
 {
     public class AppInfo_Windows
     {
+        #region Don't change visibility or writability of these fields
+
         /// <summary>
         /// To collect features from Features folder
         /// </summary>
@@ -26,5 +28,7 @@
         /// This is for automatic cache load, if not change then cache load, if changed then collect
         /// </summary>
         public static DateTime LastAccessTimeOfFeatureCache = DateTime.MinValue;
+
+        #endregion
     }
 }
