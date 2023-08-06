@@ -1,7 +1,4 @@
-﻿using Saturn.BL.AppConfig;
-using Saturn.BL.FeatureUtils;
-using Saturn.BL.Logging;
-using Saturn.Persistance;
+﻿using Saturn.BL.FeatureUtils;
 using System.Text;
 
 namespace Saturn.BL
@@ -126,7 +123,7 @@ namespace Saturn.BL
             int availableThreads;
             ThreadPool.GetAvailableThreads(out availableThreads, out completionPortThreads);
 
-            int count = ((maxThreads - availableThreads) - 1);
+            int count = maxThreads - availableThreads;
             if (count > 0)
             {
                 count = count / 2;

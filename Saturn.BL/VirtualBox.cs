@@ -11,22 +11,23 @@ namespace Saturn.BL
         MENU,
         CLI
     }
-    public class VirtualBox 
+    public class VirtualBox
     {
         private string[] _args;
         private RunMode _runMode;
 
         private static VirtualBox VirtualBoxInstance;
-   
+
         private VirtualBox()
         {
             LoggerLogicProvider = new LoggerLogicProviderSerilog();
             FeatureHandler = FeatureHandler.BuildAsync(LoggerLogicProvider).GetAwaiter().GetResult();
+            _args = Array.Empty<string>();
         }
         public VirtualBox(string[] args, RunMode runMode = RunMode.DEFAULT) : this()
         {
             _args = args;
-            _runMode = runMode;   
+            _runMode = runMode;
         }
 
         public ILoggerLogicProvider LoggerLogicProvider { get; }
@@ -34,7 +35,7 @@ namespace Saturn.BL
 
         public static VirtualBox GetInstance()
         {
-            if(VirtualBoxInstance is null)
+            if (VirtualBoxInstance is null)
             {
                 VirtualBoxInstance = new VirtualBox();
             }
@@ -44,32 +45,29 @@ namespace Saturn.BL
 
         public async Task Run()
         {
-            await Task.Run(async () =>
+            switch (_runMode)
             {
-                switch (_runMode)
-                {
-                    case RunMode.MENU:
-                        await CallMenu();
-                        break;
-                    case RunMode.CLI:
-                        await CallCli();
-                        break;
-                    default:
-                        await CallDefault();
-                        break;
-                }
+                case RunMode.MENU:
+                    await CallMenu();
+                    break;
+                case RunMode.CLI:
+                    await CallCli();
+                    break;
+                default:
+                    await CallDefault();
+                    break;
+            }
 
-                if (FeatureHandler.IsModified)
-                {
-                    await Cache.Save(FeatureHandler.GetFeatures());
-                }
-                if (AppInfoResolver.ShouldSaveFeatureOutputToFile())
-                {
-                    await FeatureHandler.SaveOutputToFile();
-                }
+            if (FeatureHandler.IsModified)
+            {
+                await Cache.Save(FeatureHandler.GetFeatures());
+            }
+            if (AppInfoResolver.ShouldSaveFeatureOutputToFile())
+            {
+                await FeatureHandler.SaveOutputToFile();
+            }
 
-                await ConfigHandler.Save();
-            });
+            await ConfigHandler.Save();
         }
 
         private async Task CallDefault()
@@ -78,10 +76,10 @@ namespace Saturn.BL
         }
 
         private async Task CallCli()
-        {           
+        {
             try
             {
-                await CommandHandler.Parse(FeatureHandler, _args);            
+                await CommandHandler.Parse(FeatureHandler, _args);
             }
             catch (Exception ex)
             {
