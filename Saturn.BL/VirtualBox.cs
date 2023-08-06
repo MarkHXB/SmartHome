@@ -13,10 +13,16 @@ namespace Saturn.BL
     }
     public class VirtualBox
     {
+        #region Fields
+
         private string[] _args;
         private RunMode _runMode;
 
         private static VirtualBox VirtualBoxInstance;
+
+        #endregion
+
+        #region Constructors
 
         private VirtualBox()
         {
@@ -30,9 +36,16 @@ namespace Saturn.BL
             _runMode = runMode;
         }
 
+        #endregion
+
+        #region Properties
+
         public ILoggerLogicProvider LoggerLogicProvider { get; }
         public FeatureHandler FeatureHandler { get; }
 
+        #endregion
+
+        #region Public methods
         public static VirtualBox GetInstance()
         {
             if (VirtualBoxInstance is null)
@@ -70,9 +83,13 @@ namespace Saturn.BL
             await ConfigHandler.Save();
         }
 
+        #endregion
+
+        #region Privat methods
+
         private async Task CallDefault()
         {
-
+            GetInstance();
         }
 
         private async Task CallCli()
@@ -91,5 +108,7 @@ namespace Saturn.BL
         {
             await new Menu().Run();
         }
+
+        #endregion
     }
 }

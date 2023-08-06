@@ -108,6 +108,58 @@ namespace Saturn.BL.AppConfig
             m_logInformation(_saveMessage);
         }
 
+        public static Dictionary<string, List<(string, string)>> GetAllConfig()
+        {
+            Dictionary<string, List<(string, string)>> configProps = new Dictionary<string, List<(string, string)>>();
+
+            foreach (var prop in typeof(AppInfo).GetFields())
+            {
+                if (!configProps.ContainsKey(nameof(AppInfo)))
+                {
+                    configProps.Add(nameof(AppInfo), new List<(string, string)>{
+                        (prop.Name, prop?.GetValue(prop)?.ToString())}
+                    );
+                }
+                else
+                {
+                    configProps[nameof(AppInfo)].Add((prop.Name, prop?.GetValue(prop)?.ToString()));
+                }
+            }
+
+            if (AppInfo.IsWindows)
+            {
+                foreach (var prop in typeof(AppInfo_Windows).GetFields())
+                {
+                    if (!configProps.ContainsKey(nameof(AppInfo_Windows)))
+                    {
+                        configProps.Add(nameof(AppInfo_Windows), new List<(string, string)>() { (prop.Name, prop?.GetValue(prop)?.ToString()) });
+                    }
+                    else
+                    {
+                        configProps[nameof(AppInfo_Windows)].Add((prop.Name, prop?.GetValue(prop)?.ToString()));
+                    }
+                }
+            }
+            else
+            {
+                foreach (var prop in typeof(AppInfo_Linux).GetFields())
+                {
+                    if (!configProps.ContainsKey(nameof(AppInfo_Linux)))
+                    {
+                        configProps.Add(nameof(AppInfo_Linux), new List<(string, string)>{
+                        (prop.Name, prop?.GetValue(prop)?.ToString())}
+                        );
+                    }
+                    else
+                    {
+                        configProps[nameof(AppInfo_Linux)].Add((prop.Name, prop?.GetValue(prop)?.ToString()));
+                    }
+                }
+            }
+
+            return configProps;
+        }
+
         private static bool IsConfigFileValid()
         {
             if (!File.Exists(AppInfo.ConfigFilePath))

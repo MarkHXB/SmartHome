@@ -19,8 +19,6 @@ namespace Saturn.API
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.     
-
             var logger = new LoggerConfiguration()
              .WriteTo.File(AppInfo.LogFilePath_API, outputTemplate: new SerilogTextFormatter().GetOutputTemplate())
              .Enrich.FromLogContext()
@@ -64,14 +62,6 @@ namespace Saturn.API
              {
                  options.JsonSerializerOptions.Converters.Add(new DateOnlyJsonConverter());
              });
-        }
-
-        private static Logger CreateLogger()
-        {
-            var loggerConfiguration = new LoggerConfiguration()
-            .WriteTo.File(formatter: new SerilogTextFormatter(), AppInfo.LogFilePath_CLI);
-
-            return loggerConfiguration.CreateLogger();
         }
     }
 }

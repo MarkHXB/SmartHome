@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Saturn.API.Logging;
+using Saturn.BL;
 using Saturn.BL.FeatureUtils;
-using Saturn.BL.Logging;
 
 namespace Saturn.API.Controllers
 {
@@ -15,15 +14,13 @@ namespace Saturn.API.Controllers
     [Route("api/[controller]/[action]")]
     public class FeaturesController : Controller
     {
-        private readonly ILoggerLogicProvider loggerLogicProvider;
         private readonly FeatureHandler _featureHandler;
         private readonly ILogger<FeaturesController> _logger;
 
         public FeaturesController(ILogger<FeaturesController> logger)
         {
-            loggerLogicProvider = new LoggerLogicProviderMicrosoft(logger);
-            _featureHandler = new FeatureHandler(loggerLogicProvider);
             _logger = logger;
+            _featureHandler = VirtualBox.GetInstance().FeatureHandler;
         }
 
         [HttpGet]
@@ -41,6 +38,7 @@ namespace Saturn.API.Controllers
             _logger.LogInformation(" @API GetAll Features was made successfully. Call from: Features/GetAll");
             return Ok(features);
         }
+
         [HttpGet]
         public async Task<IActionResult> Get(string? featureName)
         {
@@ -67,7 +65,7 @@ namespace Saturn.API.Controllers
 
             return Ok(features);
         }
-        
+
         [HttpPost]
         public async Task<IActionResult> Enable(string? featureName)
         {
