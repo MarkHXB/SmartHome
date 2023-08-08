@@ -13,7 +13,7 @@ namespace Saturn.BL.AppConfig
         private const string _buildMessage = " @Config ConfigHandler successfully built.";
         private static bool _initialized = false;
 
-        private static Action<string> m_logInformation;
+        private static Action<string>? m_logInformation;
 
         public static void Build(Action<string> logInformation)
         {
@@ -42,6 +42,8 @@ namespace Saturn.BL.AppConfig
 
         public static async Task Load()
         {
+            _ = m_logInformation ?? throw new ArgumentNullException(nameof(m_logInformation));
+
             string raw = await File.ReadAllTextAsync(AppInfo.ConfigFilePath);
 
             // FOR WINDOWS
@@ -80,6 +82,12 @@ namespace Saturn.BL.AppConfig
 
         public static async Task Save()
         {
+            if (!_initialized)
+            {
+                throw new Exception("You should initialize first the handler");
+            }
+            _ = m_logInformation ?? throw new ArgumentNullException(nameof(m_logInformation));
+
             string data = "[]";
 
             var fieldDictionary = new Dictionary<string, object>();
@@ -108,21 +116,25 @@ namespace Saturn.BL.AppConfig
             m_logInformation(_saveMessage);
         }
 
-        public static Dictionary<string, List<(string, string)>> GetAllConfig()
+        public static Dictionary<string, List<KeyValuePair<string, string>>> GetAllConfig()
         {
-            Dictionary<string, List<(string, string)>> configProps = new Dictionary<string, List<(string, string)>>();
+            Dictionary<string, List<KeyValuePair<string, string>>> configProps = new Dictionary<string, List<KeyValuePair<string, string>>>();
 
             foreach (var prop in typeof(AppInfo).GetFields())
             {
+                string key = prop.Name;
+                string value = prop?.GetValue(prop)?.ToString();
+
                 if (!configProps.ContainsKey(nameof(AppInfo)))
                 {
-                    configProps.Add(nameof(AppInfo), new List<(string, string)>{
-                        (prop.Name, prop?.GetValue(prop)?.ToString())}
-                    );
+                    configProps.Add(nameof(AppInfo), new List<KeyValuePair<string, string>>()
+                    {
+                        new KeyValuePair<string, string>(key,value)
+                    });
                 }
                 else
                 {
-                    configProps[nameof(AppInfo)].Add((prop.Name, prop?.GetValue(prop)?.ToString()));
+                    configProps[nameof(AppInfo)].Add(new KeyValuePair<string, string>(key, value));
                 }
             }
 
@@ -130,13 +142,19 @@ namespace Saturn.BL.AppConfig
             {
                 foreach (var prop in typeof(AppInfo_Windows).GetFields())
                 {
+                    string key = prop.Name;
+                    string value = prop?.GetValue(prop)?.ToString();
+
                     if (!configProps.ContainsKey(nameof(AppInfo_Windows)))
                     {
-                        configProps.Add(nameof(AppInfo_Windows), new List<(string, string)>() { (prop.Name, prop?.GetValue(prop)?.ToString()) });
+                        configProps.Add(nameof(AppInfo_Windows), new List<KeyValuePair<string, string>>()
+                        {
+                        new KeyValuePair<string, string>(key,value)
+                    });
                     }
                     else
                     {
-                        configProps[nameof(AppInfo_Windows)].Add((prop.Name, prop?.GetValue(prop)?.ToString()));
+                        configProps[nameof(AppInfo_Windows)].Add(new KeyValuePair<string, string>(key, value));
                     }
                 }
             }
@@ -144,20 +162,102 @@ namespace Saturn.BL.AppConfig
             {
                 foreach (var prop in typeof(AppInfo_Linux).GetFields())
                 {
+                    string key = prop.Name;
+                    string value = prop?.GetValue(prop)?.ToString();
+
                     if (!configProps.ContainsKey(nameof(AppInfo_Linux)))
                     {
-                        configProps.Add(nameof(AppInfo_Linux), new List<(string, string)>{
-                        (prop.Name, prop?.GetValue(prop)?.ToString())}
-                        );
+                        configProps.Add(nameof(AppInfo_Linux), new List<KeyValuePair<string, string>>()
+                        {
+                        new KeyValuePair<string, string>(key,value)
+                    });
                     }
                     else
                     {
-                        configProps[nameof(AppInfo_Linux)].Add((prop.Name, prop?.GetValue(prop)?.ToString()));
+                        configProps[nameof(AppInfo_Linux)].Add(new KeyValuePair<string, string>(key, value));
                     }
                 }
             }
 
             return configProps;
+        }
+
+        public static void SetConfig(string propertyName, string type, string value)
+        {
+            if (!_initialized)
+            {
+                throw new Exception("You should initialize first the handler");
+            }
+
+            if (string.IsNullOrWhiteSpace(propertyName))
+            {
+                throw new ArgumentNullException(nameof(propertyName));
+            }
+            if (string.IsNullOrWhiteSpace(type))
+            {
+                throw new ArgumentNullException(nameof(type));
+            }
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
+
+            object _value = null;
+            type = type.Trim().ToLower();
+
+            if (type.Contains("int"))
+            {
+                int.TryParse(value, out int val);
+                _value = val;
+            }
+            else if (type.Contains("bool"))
+            {
+                bool.TryParse(value, out bool val);
+                _value = val;
+            }
+            else if (type.Contains("datetime"))
+            {
+                DateTime.TryParse(value, out DateTime val);
+                _value = val;
+            }
+
+            if (_value is null)
+            {
+                throw new Exception("Unrecognized type of value");
+            }
+
+            if (AppInfo.IsWindows)
+            {
+                if (!typeof(AppInfo_Windows).GetFields().Any(field => field.Name.Equals(propertyName)))
+                {
+                    throw new KeyNotFoundException(propertyName);
+                }
+
+                foreach (var field in typeof(AppInfo_Windows).GetFields())
+                {
+                    if (field.Name.Equals(propertyName))
+                    {
+                        field.SetValue(field, _value);
+                    }
+                }
+            }
+            else
+            {
+                if (!typeof(AppInfo_Linux).GetFields().Any(field => field.Name.Equals(propertyName)))
+                {
+                    throw new KeyNotFoundException(propertyName);
+                }
+
+                foreach (var field in typeof(AppInfo_Linux).GetFields())
+                {
+                    if (field.Name.Equals(propertyName))
+                    {
+                        field.SetValue(field, _value);
+                    }
+                }
+            }
+
+            ConfigHandler.Save().GetAwaiter().GetResult();
         }
 
         private static bool IsConfigFileValid()
