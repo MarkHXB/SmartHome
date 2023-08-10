@@ -10,10 +10,10 @@
 
         public LoggerLogicProviderSerilog()
         {
-            var loggerConfiguration = new LoggerConfiguration()
-             .WriteTo.File(AppInfo.LogFilePath_CLI);
-
-            _logger = loggerConfiguration.CreateLogger();
+            _logger  = new LoggerConfiguration()
+             .WriteTo.File(AppInfo.LogFilePath_CLI)
+             .Enrich.FromLogContext()
+                .CreateLogger();
         }
         public LoggerLogicProviderSerilog(Logger logger)
         {

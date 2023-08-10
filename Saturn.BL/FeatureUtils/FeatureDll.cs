@@ -35,10 +35,14 @@ namespace Saturn.BL.FeatureUtils
 
             using (var process = Process.Start(processConfig))
             {
+                IsRunning = true;
+
                 OutputDataReceived(process);
                 ErrorDataReceived(process);
 
                 process.WaitForExit();
+
+                IsRunning = false;
             }
 
         }

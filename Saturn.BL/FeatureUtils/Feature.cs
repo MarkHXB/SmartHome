@@ -26,15 +26,7 @@ namespace Saturn.BL.FeatureUtils
         public IDictionary<DateTime, string> Output { get; protected set; }
 
         [JsonIgnore]
-        public bool IsRunning
-        {
-            get
-            {
-                bool isRunning = Process is not null;
-                isRunning = !Process?.HasExited ?? false;
-                return isRunning;
-            }
-        }
+        public bool IsRunning { get; protected set; }
 
         [JsonIgnore]
         protected Process Process { get; set; }

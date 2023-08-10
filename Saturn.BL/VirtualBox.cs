@@ -85,7 +85,7 @@ namespace Saturn.BL
 
         #endregion
 
-        #region Privat methods
+        #region Private methods
 
         private async Task CallDefault()
         {
