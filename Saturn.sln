@@ -11,7 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Saturn.API", "Saturn.API\Sa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Saturn.Tests", "Saturn.Tests\Saturn.Tests.csproj", "{12494DEB-8321-4F68-9C8D-7932A9D6EA83}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Saturn.Shared", "Saturn.Shared\Saturn.Shared.csproj", "{5B48B349-AD07-4C0B-901F-FD9124702DED}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Saturn.Shared", "Saturn.Shared\Saturn.Shared.csproj", "{5B48B349-AD07-4C0B-901F-FD9124702DED}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Saturn.Mobile", "Saturn.Mobile\Saturn.Mobile.csproj", "{9C582F26-7D4C-4BFD-983D-3781C3991696}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,12 @@ Global
 		{5B48B349-AD07-4C0B-901F-FD9124702DED}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5B48B349-AD07-4C0B-901F-FD9124702DED}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5B48B349-AD07-4C0B-901F-FD9124702DED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C582F26-7D4C-4BFD-983D-3781C3991696}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C582F26-7D4C-4BFD-983D-3781C3991696}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C582F26-7D4C-4BFD-983D-3781C3991696}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{9C582F26-7D4C-4BFD-983D-3781C3991696}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C582F26-7D4C-4BFD-983D-3781C3991696}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C582F26-7D4C-4BFD-983D-3781C3991696}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
