@@ -6,7 +6,7 @@
 
     public class LoggerLogicProviderSerilog : ILoggerLogicProvider
     {
-        Logger _logger;
+        private Logger _logger;
 
         public LoggerLogicProviderSerilog()
         {

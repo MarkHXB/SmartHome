@@ -9,6 +9,7 @@ class Program
         tempList.Remove(runMode);
         args = tempList.ToArray();
 
-        await new VirtualBox(args, RunMode.MENU).Run();
+        var vmBox =  new VirtualBox(args, RunMode.MENU);
+        await vmBox.Run();
     }
 }

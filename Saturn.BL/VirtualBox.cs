@@ -34,6 +34,7 @@ namespace Saturn.BL
         {
             _args = args;
             _runMode = runMode;
+            VirtualBoxInstance = this;
         }
 
         #endregion
@@ -46,6 +47,7 @@ namespace Saturn.BL
         #endregion
 
         #region Public methods
+
         public static VirtualBox GetInstance()
         {
             if (VirtualBoxInstance is null)
