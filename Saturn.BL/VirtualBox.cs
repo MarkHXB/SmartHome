@@ -91,7 +91,7 @@ namespace Saturn.BL
 
         private async Task CallDefault()
         {
-            GetInstance();
+            await CallCli();
         }
 
         private async Task CallCli()
