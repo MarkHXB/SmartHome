@@ -1,10 +1,8 @@
-﻿using Saturn.BL.Logging;
+﻿using Saturn.BL.AppConfig;
+using Saturn.BL.Logging;
 using Saturn.BL.Persistence;
 using Saturn.Persistance;
 using System.Diagnostics;
-
-using System.Configuration;
-using Saturn.BL.AppConfig;
 
 namespace Saturn.BL.FeatureUtils
 {
@@ -268,7 +266,7 @@ namespace Saturn.BL.FeatureUtils
                 proc.Start();
                 proc.WaitForExit();
 
-                string[]files = Directory.GetFiles(pathToBuild, $"{Path.GetFileNameWithoutExtension(pathToFeature)}*.exe", SearchOption.AllDirectories);
+                string[] files = Directory.GetFiles(pathToBuild, $"{Path.GetFileNameWithoutExtension(pathToFeature)}*.exe", SearchOption.AllDirectories);
                 string exeFilePath = files.Length > 0 ? files[0] : string.Empty;
 
                 if (string.IsNullOrWhiteSpace(exeFilePath))
@@ -336,7 +334,7 @@ namespace Saturn.BL.FeatureUtils
 
                 Directory.Delete(pathToBuild, true);
             }
-            
+
             return feature;
         }
         private bool FeaturePathIsSolutionFile(string path) => Path.GetExtension(path) == ".sln";

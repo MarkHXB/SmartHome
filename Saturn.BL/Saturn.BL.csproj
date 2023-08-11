@@ -15,4 +15,8 @@
     <PackageReference Include="Serilog.Extensions.Logging.File" Version="3.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Saturn.Shared\Saturn.Shared.csproj" />
+  </ItemGroup>
+
 </Project>
