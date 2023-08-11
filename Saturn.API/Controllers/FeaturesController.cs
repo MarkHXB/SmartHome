@@ -26,104 +26,127 @@ namespace Saturn.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var features = await _featureHandler.GetFeaturesAsync();
-
-            if (features is null)
+            try
             {
-                _logger.LogWarning(" @API Not found any features on HttpGet features. Call from: Features/GetAll");
-
-                return NotFound();
+                var features = await _featureHandler.GetFeaturesAsync();
+                return Ok(features);
             }
-
-            _logger.LogInformation(" @API GetAll Features was made successfully. Call from: Features/GetAll");
-            return Ok(features);
+            catch (Exception ex)
+            {
+                return ReportExceptionToLog(LogLevel.LogWarning, $" @API {ex.Message}");
+            }
         }
 
         [HttpGet]
         public async Task<IActionResult> Get(string? featureName)
         {
-            var features = await _featureHandler.GetFeaturesAsync();
-
-            if (string.IsNullOrWhiteSpace(featureName))
+            try
             {
-                return ReportExceptionToLog(LogLevel.LogWarning, $" @API {nameof(featureName)} cannot be null or empty. Call from: Features/Get/featureName...");
+                var features = await _featureHandler.GetFeaturesAsync();
+                var feature = features.FirstOrDefault(f => f.FeatureName == featureName);
+                return Ok(feature);
             }
-
-            if (features is null)
+            catch (Exception ex)
             {
-                return ReportExceptionToLog(LogLevel.LogWarning, $" @API Not found feature {featureName} on HttpGet features. Call from: Features/Get/{featureName}");
+                return ReportExceptionToLog(LogLevel.LogWarning, $" @API {ex.Message}");
             }
-
-            var feature = features.FirstOrDefault(f => f.FeatureName == featureName);
-
-            if (feature is null)
-            {
-                return ReportExceptionToLog(LogLevel.LogInformation, $" @API Feature {featureName} not found in features. Call from: Features/Get/{featureName}");
-            }
-
-            _logger.LogInformation($" @API Get Feature {featureName} was made successfully. Call from: Features/GetAll");
-
-            return Ok(features);
         }
 
         [HttpPost]
         public async Task<IActionResult> Enable(string? featureName)
         {
-            if (_featureHandler is null)
+            try
             {
-                return ReportExceptionToLog(LogLevel.LogWarning, $" @API Featurehandler is null. Call from: Features/Run/{featureName}");
+                await Task.Run(() =>
+                {
+                    _featureHandler.EnableFeature(featureName);
+                });
+
+                return Ok($"Feature {featureName} enabled.");
             }
-
-            await Task.Run(() =>
+            catch (Exception ex)
             {
-                _featureHandler.EnableFeature(featureName);
-            });
-
-            return Ok($"Feature {featureName} enabled");
+                return ReportExceptionToLog(LogLevel.LogWarning, $" @API {ex.Message}");
+            }
         }
 
         [HttpPost]
         public async Task<IActionResult> Disable(string? featureName)
         {
-            if (_featureHandler is null)
+            try
             {
-                return ReportExceptionToLog(LogLevel.LogWarning, $" @API Featurehandler is null. Call from: Features/Run/{featureName}");
+                await Task.Run(() =>
+                {
+                    _featureHandler.DisableFeature(featureName);
+                });
+
+                return Ok($"Feature {featureName} disabled.");
             }
-
-            await Task.Run(() =>
+            catch (Exception ex)
             {
-                _featureHandler.DisableFeature(featureName);
-            });
-
-            return Ok($"Feature {featureName} disabled");
+                return ReportExceptionToLog(LogLevel.LogWarning, $" @API {ex.Message}");
+            }
         }
 
         [HttpPost]
         public async Task<IActionResult> Run(string? featureName)
         {
-            if (_featureHandler is null)
+            try
             {
-                return ReportExceptionToLog(LogLevel.LogWarning, $" @API Featurehandler is null. Call from: Features/Run/{featureName}");
+                string output = await _featureHandler.TryToRunReturnOutput(featureName);
+                return Ok(output);
             }
-
-            string output = await _featureHandler.TryToRunReturnOutput(featureName);
-
-            return Ok(output);
+            catch (Exception ex)
+            {
+                return ReportExceptionToLog(LogLevel.LogWarning, $" @API {ex.Message}");
+            }
         }
 
         [HttpPost]
-        public async Task<IActionResult> RunAll()
+        public IActionResult RunAll()
         {
-            if (_featureHandler is null)
+            try
             {
-                return ReportExceptionToLog(LogLevel.LogWarning, "@API Featurehandler is null.Call from: Features/RunAll");
+                Task.Run(() => _featureHandler.TryToRunAll());
+                return Ok("Run all features operation started");
             }
-            await _featureHandler.TryToRunAll();
-
-            return Ok("All features ran successfully");
+            catch (Exception ex)
+            {
+                return ReportExceptionToLog(LogLevel.LogWarning, $" @API {ex.Message}");
+            }
         }
 
-        private NotFoundResult ReportExceptionToLog(LogLevel logLevel, string message)
+        [HttpGet]
+        public async Task<IActionResult> Stop(string? featureName)
+        {
+            try
+            {
+                await Task.Run(() => _featureHandler.Stop(featureName));
+
+                return Ok($"Stopped {featureName} successfully.");
+            }
+            catch (Exception ex)
+            {
+                return ReportExceptionToLog(LogLevel.LogWarning, $" @API {ex.Message}");
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> StopAll()
+        {
+            try
+            {
+                await Task.Run(() => _featureHandler.StopAll());
+
+                return Ok($"Stopped all features successfully.");
+            }
+            catch (Exception ex)
+            {
+                return ReportExceptionToLog(LogLevel.LogWarning, $" @API {ex.Message}");
+            }
+        }
+
+        private BadRequestObjectResult ReportExceptionToLog(LogLevel logLevel, string message)
         {
             switch (logLevel)
             {
@@ -135,7 +158,7 @@ namespace Saturn.API.Controllers
                     break;
             }
 
-            return NotFound();
+            return BadRequest(message);
         }
     }
 }

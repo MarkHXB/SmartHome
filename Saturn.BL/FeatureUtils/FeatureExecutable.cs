@@ -21,7 +21,7 @@ namespace Saturn.BL.FeatureUtils
                 throw new FileNotFoundException(nameof(FeatureName) + " couldn't run because file not found");
             }
 
-            if (args is null || args.Length == 0)
+            if (args is null || args?.Length == 0)
             {
                 args = new string[]
                 {

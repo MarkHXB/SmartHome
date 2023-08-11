@@ -115,11 +115,6 @@ namespace Saturn.BL.FeatureUtils
         }
         public async Task<string> TryToRunReturnOutput(string? featureName = "", string[]? args = null)
         {
-            if (string.IsNullOrWhiteSpace(featureName))
-            {
-                throw new ArgumentNullException(nameof(featureName) + "\nFeature Name cannot be null!");
-            }
-
             var feature = m_Features.FirstOrDefault(f => f.FeatureName == featureName);
 
             _ = feature ?? throw new ArgumentNullException(nameof(feature));
