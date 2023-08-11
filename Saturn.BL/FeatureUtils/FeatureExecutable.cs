@@ -13,7 +13,7 @@ namespace Saturn.BL.FeatureUtils
         {
             if (IsEnabled is false)
             {
-                throw new Exception($"You wanted to run the {FeatureName} which is not enabled.\nTry to run Enable() method.");
+                throw new Exception($"- Disabled - You wanted to run the {FeatureName} which is not enabled.");
             }
 
             if (string.IsNullOrWhiteSpace(PathToFile))
