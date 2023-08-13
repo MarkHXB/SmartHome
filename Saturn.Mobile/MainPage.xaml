@@ -1,7 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="Saturn.Mobile.MainPage">
+             x:Class="Saturn.Mobile.MainPage"
+             xmlns:model="clr-namespace:Saturn.Mobile.ViewModels">
 
     <ScrollView>
         <VerticalStackLayout
@@ -15,25 +16,17 @@
                 HeightRequest="200"
                 HorizontalOptions="Center" />
 
-            <Label
-                Text="Hello, World!"
-                SemanticProperties.HeadingLevel="Level1"
-                FontSize="32"
-                HorizontalOptions="Center" />
 
-            <Label
-                Text="Welcome to .NET Multi-platform App UI"
-                SemanticProperties.HeadingLevel="Level2"
-                SemanticProperties.Description="Welcome to dot net Multi platform App U I"
-                FontSize="18"
-                HorizontalOptions="Center" />
+            <Label Text="ITt" />
+            <ListView ItemsSource="{Binding Features}">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                            <Label Text="{Binding Name}"/>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
 
-            <Button
-                x:Name="CounterBtn"
-                Text="Click me"
-                SemanticProperties.Hint="Counts the number of times you click"
-                Clicked="OnCounterClicked"
-                HorizontalOptions="Center" />
+            <Button Command="{Binding GetAllCommand}" Text="Refresh"/>
 
         </VerticalStackLayout>
     </ScrollView>
