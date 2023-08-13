@@ -4,7 +4,7 @@
     {
         public static bool UseLoadFromCache() => ShouldLoadFromCache();
         public static bool ShouldEnableNewlyAddedFeature() => AppInfo.IsWindows ? AppInfo_Windows.ShouldEnableNewlyAddedFeature : AppInfo_Linux.ShouldEnableNewlyAddedFeature;
-        public static bool UseAlternativeFeatures() => AppInfo.IsWindows ? AppInfo_Windows.UseAlternativeFeatures : false;
+        public static bool UseAlternativeFeatures() => AppInfo.IsWindows ? AppInfo_Windows.UseAlternativeFeatures : AppInfo_Linux.UseAlternativeFeatures;
         public static bool ShouldSaveFeatureOutputToFile() => AppInfo.IsWindows ? AppInfo_Windows.SaveFeatureOutputToFile : AppInfo_Linux.SaveFeatureOutputToFile;
 
         private static bool ShouldLoadFromCache()

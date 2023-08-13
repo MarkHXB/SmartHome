@@ -82,10 +82,6 @@ namespace Saturn.BL.AppConfig
 
         public static async Task Save()
         {
-            if (!_initialized)
-            {
-                throw new Exception("You should initialize first the handler");
-            }
             _ = m_logInformation ?? throw new ArgumentNullException(nameof(m_logInformation));
 
             string data = "[]";
@@ -108,7 +104,7 @@ namespace Saturn.BL.AppConfig
                     fieldDictionary.Add(field.Name, field.GetValue(field));
                 }
 
-                data = JsonConvert.SerializeObject(typeof(AppInfo_Linux).GetRuntimeFields());
+                data = JsonConvert.SerializeObject(fieldDictionary);
             }
 
             await File.WriteAllTextAsync(AppInfo.ConfigFilePath, data, Encoding.UTF8);

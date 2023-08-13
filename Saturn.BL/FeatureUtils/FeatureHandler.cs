@@ -138,8 +138,16 @@ namespace Saturn.BL.FeatureUtils
         }
         public void Collect()
         {
-            CollectAlternativExecutables();
+            if(AppInfo.IsWindows)
+            {
+                CollectAlternativExecutables();
+            }
+            else
+            {
+                CollectAlternativDlls();
+            }
         }
+
         public void AddFeature(string? pathToFeature)
         {
             Feature? feature = null;
@@ -250,7 +258,7 @@ namespace Saturn.BL.FeatureUtils
             {
                 string pathToBuild = $"C:/tmp/{Path.GetFileNameWithoutExtension(pathToFeature)}";
 
-                string command = $"dotnet publish {pathToFeature} -r win-x64 -o {pathToBuild}";
+                string command = $"dotnet publish {pathToFeature} -p:PublishSingleFile=true --self-contained -r win-x64 -o {pathToBuild}";
 
                 ProcessStartInfo config = new ProcessStartInfo()
                 {
@@ -295,7 +303,7 @@ namespace Saturn.BL.FeatureUtils
             {
                 string pathToBuild = $"/tmp/{Path.GetFileNameWithoutExtension(pathToFeature)}";
 
-                string command = $"dotnet publish {pathToFeature} -r linux-x64 -o {pathToBuild}";
+                string command = $"dotnet publish {pathToFeature} -p:PublishSingleFile=true --self-contained -r linux-x64 -o {pathToBuild}";
 
                 ProcessStartInfo config = new ProcessStartInfo()
                 {
@@ -337,7 +345,9 @@ namespace Saturn.BL.FeatureUtils
 
             return feature;
         }
+
         private bool FeaturePathIsSolutionFile(string path) => Path.GetExtension(path) == ".sln";
+
         private void CollectAlternativExecutables()
         {
             string path = AppInfo.FeaturesFolderPath;
@@ -354,9 +364,30 @@ namespace Saturn.BL.FeatureUtils
 
             foreach (var filePath in Directory.GetFiles(path))
             {
-                ParseExecutableToFeature(filePath);
+                RegisterExecutableToFeatures(filePath);
             }
         }
+
+        private void CollectAlternativDlls()
+        {
+            string path = AppInfo.FeaturesFolderPath;
+
+            if (!AppInfoResolver.UseAlternativeFeatures())
+            {
+                return;
+            }
+
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+
+            foreach (var filePath in Directory.GetFiles(path))
+            {
+                RegisterDllToFeatures(filePath);
+            }
+        }
+
         private void RegisterFeature(Feature? feature)
         {
             _ = feature ?? throw new Exception($" @BL failed to register feature because it is null");
@@ -376,6 +407,7 @@ namespace Saturn.BL.FeatureUtils
 
             LogInformation($" @BL [{feature.FeatureName}] <{feature.FeatureResult}> has added to feautres");
         }
+
         private Feature? ParseFeatureByFilePath(string? pathToFeature, bool enableFeature)
         {
             Feature? feature = null;
@@ -399,7 +431,8 @@ namespace Saturn.BL.FeatureUtils
 
             return feature;
         }
-        private Feature? ParseExecutableToFeature(string? filePath)
+
+        private Feature? RegisterExecutableToFeatures(string? filePath)
         {
             if (string.IsNullOrWhiteSpace(filePath))
             {
@@ -413,6 +446,25 @@ namespace Saturn.BL.FeatureUtils
                 string featureName = Path.GetFileNameWithoutExtension(filePath);
 
                 RegisterFeature(new FeatureExecutable(featureName, AppInfoResolver.ShouldEnableNewlyAddedFeature(), filePath));
+            }
+
+            return feature;
+        }
+
+        private Feature? RegisterDllToFeatures(string filePath)
+        {
+            if (string.IsNullOrWhiteSpace(filePath))
+            {
+                return null;
+            }
+
+            Feature? feature = null;
+
+            if (Path.GetExtension(filePath) == ".dll" && !filePath.Contains("Microsoft"))
+            {
+                string featureName = Path.GetFileNameWithoutExtension(filePath);
+
+                RegisterFeature(new FeatureDll(featureName, AppInfoResolver.ShouldEnableNewlyAddedFeature(), filePath));
             }
 
             return feature;
