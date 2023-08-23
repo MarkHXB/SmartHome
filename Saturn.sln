@@ -13,7 +13,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Saturn.Shared", "Saturn.Sha
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Saturn.Mobile", "Saturn.Mobile\Saturn.Mobile.csproj", "{690486FF-BE3E-4408-8533-EC10B4714626}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Saturn.WEBAPI", "Saturn.WEBAPI\Saturn.WEBAPI.csproj", "{98834A3F-5926-42D5-8E4B-061BB2A8D1A2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Saturn.WEBAPI", "Saturn.WEBAPI\Saturn.WEBAPI.csproj", "{98834A3F-5926-42D5-8E4B-061BB2A8D1A2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Saturn.Service", "Saturn.Service\Saturn.Service.csproj", "{92EA8277-65D1-4576-8825-C00C4EF9D6A7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,6 +49,10 @@ Global
 		{98834A3F-5926-42D5-8E4B-061BB2A8D1A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{98834A3F-5926-42D5-8E4B-061BB2A8D1A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{98834A3F-5926-42D5-8E4B-061BB2A8D1A2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{92EA8277-65D1-4576-8825-C00C4EF9D6A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{92EA8277-65D1-4576-8825-C00C4EF9D6A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{92EA8277-65D1-4576-8825-C00C4EF9D6A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{92EA8277-65D1-4576-8825-C00C4EF9D6A7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

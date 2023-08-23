@@ -1,4 +1,4 @@
-﻿namespace Saturn.BL.FeatureUtils
+﻿namespace Saturn.Shared
 {
     public enum FeatureResult
     {

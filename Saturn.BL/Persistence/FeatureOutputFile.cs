@@ -1,5 +1,4 @@
-﻿using Saturn.BL.AppConfig;
-using Saturn.BL.FeatureUtils;
+﻿using Saturn.Shared;
 using System.Text;
 
 namespace Saturn.BL.Persistence
@@ -10,12 +9,12 @@ namespace Saturn.BL.Persistence
         {
             if (!AppInfoResolver.ShouldSaveFeatureOutputToFile())
             {
-                throw new Exception($"{nameof(AppInfoResolver.ShouldSaveFeatureOutputToFile)} is not enabled, but the program tried to save the output of {feature.FeatureName}");
+                throw new Exception($"{nameof(AppInfoResolver.ShouldSaveFeatureOutputToFile)} is not enabled, but the program tried to save the output of {feature.Name}");
             }
 
-            _ = feature ?? throw new ArgumentNullException(feature?.FeatureName ?? nameof(feature));
+            _ = feature ?? throw new Exception("@BL Failed to save feature because it's empty!");
 
-            if (feature.Output is null || feature.Output.Count == 0)
+            if (!feature.Output.Any())
             {
                 return;
             }

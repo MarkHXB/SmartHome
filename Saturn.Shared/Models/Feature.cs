@@ -1,26 +1,41 @@
 ﻿using Newtonsoft.Json;
 using System.Diagnostics;
 
-namespace Saturn.BL.FeatureUtils
+namespace Saturn.Shared
 {
     public abstract class Feature
     {
-        protected Feature(string featureName, FeatureResult featureResult, string pathToFile, DateOnly? registrationDate = null)
+        protected Feature(string name, string runFilePath, FeatureResult featureResult, List<Command> commands, Cli? cli = null, WebApi? webApi = null, DateOnly? registrationDate = null)
         {
-            FeatureName = featureName;
-            RegistrationDate = registrationDate ?? DateOnly.FromDateTime(DateTime.Now);
+            RegistrationHistory = registrationDate ?? DateOnly.FromDateTime(DateTime.Now);
+            Name = name;
+            RunFilePath = runFilePath;
             FeatureResult = featureResult;
+            Commands = commands;
             Output = new Dictionary<DateTime, string>();
-            PathToFile = pathToFile;
+            Cli = cli;
+            WebApi = webApi;
+
+            if (Cli is null && WebApi is null)
+            {
+                throw new Exception("Cannot be empty both cli and webapi option!");
+            }
         }
 
+        public string Name { get; protected set; } = string.Empty;
         public bool IsEnabled { get; protected set; }
-        public string FeatureName { get; }
-        public DateOnly RegistrationDate { get; private set; }
+        public DateOnly RegistrationHistory { get; private set; }
         public FeatureResult FeatureResult { get; private set; } = FeatureResult.Exe;
-        public string PathToFile { get; protected set; }
+        public List<Command> Commands { get; protected set; } = new List<Command>();
+        public string? RunFilePath { get; protected set; }
+        public Cli? Cli { get; protected set; }
+        public WebApi? WebApi { get; protected set; }
 
-        public event EventHandler CancellationRequested;
+        [JsonIgnore]
+        public bool IsCli => Cli is not null;
+
+        [JsonIgnore]
+        public bool IsWebApi => WebApi is not null;
 
         [JsonIgnore]
         public IDictionary<DateTime, string> Output { get; protected set; }
@@ -30,6 +45,8 @@ namespace Saturn.BL.FeatureUtils
 
         [JsonIgnore]
         protected Process Process { get; set; }
+
+        public event EventHandler CancellationRequested;
 
         #region Public methods
 
@@ -133,9 +150,9 @@ namespace Saturn.BL.FeatureUtils
 
         public override string ToString()
         {
-            return $"{FeatureName} : [\n" +
+            return $"{Name} : [\n" +
                 $"\tIs Running: {IsRunning}\n" +
-                 $"\tRegistration Date: {RegistrationDate}\n" +
+                 $"\tRegistration Date: {RegistrationHistory}\n" +
                   $"\tType: {FeatureResult}\n" +
                    $"\tIs Enabled: {IsEnabled}\n],\n";
         }

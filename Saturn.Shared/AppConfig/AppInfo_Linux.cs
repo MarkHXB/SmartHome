@@ -1,18 +1,8 @@
-﻿namespace Saturn.BL.AppConfig
+﻿namespace Saturn.Shared
 {
-    public class AppInfo_Windows
+    public class AppInfo_Linux
     {
         #region Don't change visibility or writability of these fields
-
-        /// <summary>
-        /// To collect features from Features folder
-        /// </summary>
-        public static bool UseAlternativeFeatures = true;
-
-        /// <summary>
-        /// Start without cache loading
-        /// </summary>
-        public static bool LoadFromCache = true;
 
         /// <summary>
         /// Collect and save the features that they are enabled
@@ -29,6 +19,10 @@
         /// </summary>
         public static DateTime LastAccessTimeOfFeatureCache = DateTime.MinValue;
 
+        /// <summary>
+        /// This delay value represents 1 minute delay on service/daemon run.
+        /// </summary>
+        public const int DaemonDelayValueInSeconds = 60000;
         #endregion
     }
 }

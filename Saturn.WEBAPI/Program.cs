@@ -1,6 +1,4 @@
-using Saturn.BL.AppConfig;
-using Saturn.BL.Logging;
-using Saturn.WEBAPI.Services;
+using Saturn.Shared;
 using Serilog;
 
 namespace Saturn.WEBAPI
@@ -12,7 +10,7 @@ namespace Saturn.WEBAPI
             var builder = WebApplication.CreateBuilder(args);
 
             var logger = new LoggerConfiguration()
-             .WriteTo.File(AppInfo.LogFilePath_API, outputTemplate: new SerilogTextFormatter().GetOutputTemplate())
+             .WriteTo.File(AppInfo.LogFilePath_WEBAPI, outputTemplate: new SerilogTextFormatter().GetOutputTemplate())
              .Enrich.FromLogContext()
             .CreateLogger();
             builder.Logging.ClearProviders();
@@ -23,7 +21,7 @@ namespace Saturn.WEBAPI
             builder.Services.AddSwaggerGen();
 
             builder.Logging.AddFile(
-                pathFormat: AppInfo.LogFilePath_API,
+                pathFormat: AppInfo.LogFilePath_WEBAPI,
                 minimumLevel: LogLevel.Information,
                 outputTemplate: new SerilogTextFormatter().GetOutputTemplate());
 

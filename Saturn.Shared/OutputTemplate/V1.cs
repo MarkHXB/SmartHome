@@ -4,13 +4,11 @@
     {
         public static string ToString(string content)
         {
-            //text	....
             return content;
         }
 
         public static string ToDialog(string title, string content)
         {
-            // dialog/r[title]/r[content]
             return $"dialog\t{title ?? string.Empty}\t{content ?? string.Empty}";
         }
 
@@ -18,10 +16,13 @@
         {
             if(!string.IsNullOrWhiteSpace(content))
             {
-                var tokens = content.Split('\t', StringSplitOptions.RemoveEmptyEntries);
-                if(tokens.Length == 3)
+                var tokens = content.Split('\t', StringSplitOptions.None);
+                if(tokens.Length > 0)
                 {
-                    return true;
+                    if (tokens[0].Equals("dialog"))
+                    {
+                        return true;
+                    }
                 }
             }
 

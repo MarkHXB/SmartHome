@@ -2,7 +2,7 @@
 using System.Reflection;
 using System.Text;
 
-namespace Saturn.BL.AppConfig
+namespace Saturn.Shared
 {
     public class ConfigHandler
     {
@@ -28,7 +28,7 @@ namespace Saturn.BL.AppConfig
                 return;
             }
 
-            if (!IsConfigFileValid())
+            if (!IsConfigFileValid() || IsConfigFileChanged().GetAwaiter().GetResult())
             {
                 RestoreConfigFile();
             }
@@ -39,6 +39,8 @@ namespace Saturn.BL.AppConfig
 
             m_logInformation(_buildMessage);
         }
+
+        
 
         public static async Task Load()
         {
@@ -291,6 +293,42 @@ namespace Saturn.BL.AppConfig
                 if (File.GetLastAccessTime(AppInfo.ConfigFilePath).AddDays(1) < DateTime.Now)
                 {
                     return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static async Task<bool> IsConfigFileChanged()
+        {
+            _ = m_logInformation ?? throw new ArgumentNullException(nameof(m_logInformation));
+
+            string raw = await File.ReadAllTextAsync(AppInfo.ConfigFilePath);
+            var data = JsonConvert.DeserializeObject<Dictionary<string, object>>(raw);
+
+            // FOR WINDOWS
+            if (AppInfo.IsWindows)
+            { 
+                var current = typeof(AppInfo_Windows).GetRuntimeFields();
+
+                foreach (var old in data)
+                {
+                    if(!current.Any(c => c.Name.Contains(old.Key)))
+                    {
+                        return true;
+                    }
+                }
+            }
+            else
+            {
+                var current = typeof(AppInfo_Linux).GetRuntimeFields();
+
+                foreach (var old in data)
+                {
+                    if (!current.Any(c => c.Name.Contains(old.Key)))
+                    {
+                        return true;
+                    }
                 }
             }
 

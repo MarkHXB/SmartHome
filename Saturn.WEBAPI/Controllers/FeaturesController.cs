@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Saturn.BL;
 using Saturn.BL.FeatureUtils;
+using Saturn.Shared;
 
 namespace Saturn.API.Controllers
 {
@@ -20,7 +21,7 @@ namespace Saturn.API.Controllers
         public FeaturesController(ILogger<FeaturesController> logger)
         {
             _logger = logger;
-            _featureHandler = VirtualBox.GetInstance().FeatureHandler;
+            _featureHandler = VirtualBox.GetInstance(RunMode.WEBAPI).FeatureHandler;
         }
 
         [HttpGet]
@@ -43,7 +44,7 @@ namespace Saturn.API.Controllers
             try
             {
                 var features = await _featureHandler.GetFeaturesAsync();
-                var feature = features.FirstOrDefault(f => f.FeatureName == featureName);
+                var feature = features.FirstOrDefault(f => f.Name == featureName);
                 return Ok(feature);
             }
             catch (Exception ex)

@@ -1,10 +1,11 @@
 ﻿using System.Diagnostics;
 
-namespace Saturn.BL.FeatureUtils
+namespace Saturn.Shared
 {
     public class FeatureDll : Feature
     {
-        public FeatureDll(string featureName, bool isEnabled, string pathToFile) : base(featureName, FeatureResult.Dll, pathToFile)
+        public FeatureDll(string name, string runFilePath, List<Command> commands, bool isEnabled, Cli? cli = null, WebApi? webApi = null) 
+            : base(name, runFilePath, FeatureResult.Dll, commands, cli, webApi)
         {
             IsEnabled = isEnabled;
         }
@@ -13,15 +14,15 @@ namespace Saturn.BL.FeatureUtils
         {
             if (IsEnabled is false)
             {
-                throw new Exception($"You wanted to run the {FeatureName} which is not enabled.\nTry to run Enable() method.");
+                throw new Exception($"You wanted to run the {Name} which is not enabled.\nTry to run Enable() method.");
             }
 
-            if (string.IsNullOrWhiteSpace(PathToFile))
+            if (string.IsNullOrWhiteSpace(RunFilePath))
             {
-                throw new FileNotFoundException(nameof(FeatureName) + " couldn't run because file not found");
+                throw new FileNotFoundException(nameof(Name) + " couldn't run because file not found");
             }
 
-            string arg = string.Join(" ", PathToFile, args ?? Array.Empty<string>());
+            string arg = string.Join(" ", RunFilePath, args ?? Array.Empty<string>());
 
             var processConfig = new ProcessStartInfo
             {

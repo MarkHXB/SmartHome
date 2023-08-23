@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace Saturn.BL.FeatureUtils
+namespace Saturn.Shared
 {
     [Serializable]
     internal class FeatureAlreadyDisabledException : Exception

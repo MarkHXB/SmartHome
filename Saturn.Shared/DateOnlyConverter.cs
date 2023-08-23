@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Saturn.WEBAPI.Services
+namespace Saturn.Shared
 {
     public sealed class DateOnlyJsonConverter : JsonConverter<DateOnly>
     {

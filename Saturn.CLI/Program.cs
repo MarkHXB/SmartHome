@@ -1,4 +1,5 @@
 ﻿using Saturn.BL;
+using Saturn.Shared;
 
 class Program
 {
@@ -8,7 +9,7 @@ class Program
         var tempList = args.ToList();
         tempList.Remove(tempRunMode);
         args = tempList.ToArray();
-        RunMode runMode = RunMode.DEFAULT;
+        RunMode runMode = RunMode.CLI;
 
         try
         {
@@ -16,7 +17,7 @@ class Program
         }
         catch (Exception)
         {
-            runMode = RunMode.DEFAULT;
+            runMode = RunMode.CLI;
         }
 
         var vmBox = new VirtualBox(args, runMode);

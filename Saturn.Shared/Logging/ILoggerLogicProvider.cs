@@ -1,4 +1,4 @@
-﻿namespace Saturn.BL.Logging
+﻿namespace Saturn.Shared
 {
     public interface ILoggerLogicProvider
     {

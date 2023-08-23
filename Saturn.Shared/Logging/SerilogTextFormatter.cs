@@ -1,8 +1,8 @@
 ﻿using Serilog.Events;
 using Serilog.Formatting;
 
-namespace Saturn.BL.Logging
-{
+namespace Saturn.Shared
+{ 
     public class SerilogTextFormatter : ITextFormatter
     {
         void ITextFormatter.Format(LogEvent logEvent, TextWriter output)

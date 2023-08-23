@@ -1,16 +1,8 @@
-﻿using Saturn.BL.AppConfig;
-using Saturn.BL.FeatureUtils;
-using Saturn.BL.Logging;
-using Saturn.Persistance;
+﻿using Saturn.BL.FeatureUtils;
+using Saturn.Shared;
 
 namespace Saturn.BL
 {
-    public enum RunMode
-    {
-        DEFAULT,
-        MENU,
-        CLI
-    }
     public class VirtualBox
     {
         #region Fields
@@ -24,13 +16,13 @@ namespace Saturn.BL
 
         #region Constructors
 
-        private VirtualBox()
+        private VirtualBox(RunMode runMode)
         {
-            LoggerLogicProvider = new LoggerLogicProviderSerilog();
+            LoggerLogicProvider = new LoggerLogicProviderSerilog(runMode);
             FeatureHandler = FeatureHandler.BuildAsync(LoggerLogicProvider).GetAwaiter().GetResult();
             _args = Array.Empty<string>();
         }
-        public VirtualBox(string[] args, RunMode runMode = RunMode.DEFAULT) : this()
+        public VirtualBox(string[] args, RunMode runMode = RunMode.CLI) : this(runMode)
         {
             _args = args;
             _runMode = runMode;
@@ -48,11 +40,11 @@ namespace Saturn.BL
 
         #region Public methods
 
-        public static VirtualBox GetInstance()
+        public static VirtualBox GetInstance(RunMode runMode)
         {
             if (VirtualBoxInstance is null)
             {
-                VirtualBoxInstance = new VirtualBox();
+                VirtualBoxInstance = new VirtualBox(runMode);
             }
 
             return VirtualBoxInstance;
@@ -66,16 +58,22 @@ namespace Saturn.BL
                     await CallMenu();
                     break;
                 case RunMode.CLI:
-                    await CallCli();
+                    await CallCli(); // fix
                     break;
-                default:
-                    await CallDefault();
+                case RunMode.MAUI:
+                    await CallCli(); // fix
+                    break;
+                case RunMode.DAEMON:
+                    await CallDaemon(); // fix
+                    break;
+                case RunMode.WEBAPI:
+                    await CallCli(); // fix
                     break;
             }
 
             if (FeatureHandler.IsModified)
             {
-                await Cache.Save(FeatureHandler.GetFeatures());
+                await FeatureHandler.SaveModifiedDescriptionFiles();
             }
             if (AppInfoResolver.ShouldSaveFeatureOutputToFile())
             {

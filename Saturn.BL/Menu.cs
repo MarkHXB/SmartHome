@@ -1,4 +1,5 @@
 ﻿using Saturn.BL.FeatureUtils;
+using Saturn.Shared;
 using System.Text;
 
 namespace Saturn.BL
@@ -29,7 +30,7 @@ namespace Saturn.BL
         public Menu()
         {
             StatusQueue = new StringBuilder();
-            featureHandler = VirtualBox.GetInstance().FeatureHandler;
+            featureHandler = VirtualBox.GetInstance(RunMode.MENU).FeatureHandler;
         }
 
         public async Task Run()
@@ -97,7 +98,7 @@ namespace Saturn.BL
         {
             string? featureName = GetReadLine("Name of feature you want to GET");
 
-            var feautre = featureHandler.GetFeatures().FirstOrDefault(fe => fe.FeatureName.Equals(featureName));
+            var feautre = featureHandler.GetFeatures().FirstOrDefault(fe => fe.Name.Equals(featureName));
             if (feautre != null)
             {
                 Console.WriteLine(feautre);
@@ -159,7 +160,7 @@ namespace Saturn.BL
 
             foreach (var feature in featureHandler.GetFeatures())
             {
-                tasks.Add(Task.Run(async () => await CommandHandler.Parse(featureHandler, "run", feature.FeatureName)));
+                tasks.Add(Task.Run(async () => await CommandHandler.Parse(featureHandler, "run", feature.Name)));
             }
 
             Task.WhenAll(tasks);
