@@ -21,6 +21,7 @@ namespace Saturn.BL
             LoggerLogicProvider = new LoggerLogicProviderSerilog(runMode);
             FeatureHandler = FeatureHandler.BuildAsync(LoggerLogicProvider).GetAwaiter().GetResult();
             _args = Array.Empty<string>();
+            _runMode = runMode;
         }
         public VirtualBox(string[] args, RunMode runMode = RunMode.CLI) : this(runMode)
         {
@@ -83,14 +84,11 @@ namespace Saturn.BL
             await ConfigHandler.Save();
         }
 
+      
+
         #endregion
 
         #region Private methods
-
-        private async Task CallDefault()
-        {
-            await CallCli();
-        }
 
         private async Task CallCli()
         {
@@ -109,6 +107,20 @@ namespace Saturn.BL
             await new Menu().Run();
         }
 
+        private async Task CallDaemon()
+        {
+            try
+            {
+                // run scheduled features
+                // create report -> template szerint
+                await CommandHandler.Parse(FeatureHandler, new string[] {"runallscheduled"});
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
         #endregion
     }
 }

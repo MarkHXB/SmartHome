@@ -22,7 +22,7 @@ namespace Saturn.BL.Converters
 
                 if (converted is null) return feature;
 
-                feature = new FeatureExecutable(converted.Name, converted.RunFilePath, converted.Commands, AppInfoResolver.ShouldEnableNewlyAddedFeature(), converted.Cli, converted.WebApi);
+                feature = new FeatureExecutable(converted.Name, converted.RunFilePath, converted.Commands, AppInfoResolver.ShouldEnableNewlyAddedFeature(), converted.AdvancedConfig, converted.WebApi);
             }
             else
             {
@@ -30,7 +30,7 @@ namespace Saturn.BL.Converters
 
                 if (converted is null) return feature;
 
-                feature = new FeatureDll(converted.Name, converted.RunFilePath, converted.Commands, AppInfoResolver.ShouldEnableNewlyAddedFeature(), converted.Cli, converted.WebApi);
+                feature = new FeatureDll(converted.Name, converted.RunFilePath, converted.Commands, AppInfoResolver.ShouldEnableNewlyAddedFeature(), converted.AdvancedConfig, converted.WebApi);
 
             }
 

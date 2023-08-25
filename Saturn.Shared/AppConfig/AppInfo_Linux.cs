@@ -18,11 +18,7 @@
         /// This is for automatic cache load, if not change then cache load, if changed then collect
         /// </summary>
         public static DateTime LastAccessTimeOfFeatureCache = DateTime.MinValue;
-
-        /// <summary>
-        /// This delay value represents 1 minute delay on service/daemon run.
-        /// </summary>
-        public const int DaemonDelayValueInSeconds = 60000;
+        
         #endregion
     }
 }

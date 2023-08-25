@@ -5,7 +5,7 @@ namespace Saturn.Shared
 {
     public abstract class Feature
     {
-        protected Feature(string name, string runFilePath, FeatureResult featureResult, List<Command> commands, Cli? cli = null, WebApi? webApi = null, DateOnly? registrationDate = null)
+        protected Feature(string name, string runFilePath, FeatureResult featureResult, List<Command> commands, AdvancedConfig? advancedConfig = null, WebApi? webApi = null, DateOnly? registrationDate = null)
         {
             RegistrationHistory = registrationDate ?? DateOnly.FromDateTime(DateTime.Now);
             Name = name;
@@ -13,13 +13,8 @@ namespace Saturn.Shared
             FeatureResult = featureResult;
             Commands = commands;
             Output = new Dictionary<DateTime, string>();
-            Cli = cli;
+            AdvancedConfig = advancedConfig;
             WebApi = webApi;
-
-            if (Cli is null && WebApi is null)
-            {
-                throw new Exception("Cannot be empty both cli and webapi option!");
-            }
         }
 
         public string Name { get; protected set; } = string.Empty;
@@ -28,11 +23,11 @@ namespace Saturn.Shared
         public FeatureResult FeatureResult { get; private set; } = FeatureResult.Exe;
         public List<Command> Commands { get; protected set; } = new List<Command>();
         public string? RunFilePath { get; protected set; }
-        public Cli? Cli { get; protected set; }
+        public AdvancedConfig? AdvancedConfig { get; protected set; }
         public WebApi? WebApi { get; protected set; }
 
         [JsonIgnore]
-        public bool IsCli => Cli is not null;
+        public bool IsCli => WebApi is null;
 
         [JsonIgnore]
         public bool IsWebApi => WebApi is not null;
@@ -45,6 +40,9 @@ namespace Saturn.Shared
 
         [JsonIgnore]
         protected Process Process { get; set; }
+
+        [JsonIgnore]
+        public bool IsScheduled => AdvancedConfig?.IsNull() ?? false;
 
         public event EventHandler CancellationRequested;
 

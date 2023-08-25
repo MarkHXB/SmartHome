@@ -4,7 +4,7 @@
     {
         RUN,
         RUNALL,
-        RUNWHEN,
+        RUNALLSCHEDULED,
         ADDFEATURE,
         ENABLE,
         DISABLE,

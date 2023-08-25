@@ -12,6 +12,9 @@ namespace Saturn.Shared
         public static readonly string LogFolderPath = Path.Combine(Appdata, AppName, "Log");  
         public static readonly string FeaturesOutputFolderPath = Path.Combine(Appdata, AppName, "Output");
 
+        // Scheduling
+        public static readonly string ScheduledFeaturesFilePath = Path.Combine(Appdata, AppName, "Scheduling.json");
+
         // Logging
         public static readonly string LogFilePath_CLI = Path.Combine(LogFolderPath, DateTime.Now.ToShortDateString() + "_CLI.log");
         public static readonly string LogFilePath_DAEMON = Path.Combine(LogFolderPath, DateTime.Now.ToShortDateString() + "_DAEMON.log");
@@ -22,6 +25,17 @@ namespace Saturn.Shared
         // Description
         public static readonly string FeaturesDescriptionFolderPath = Path.Combine(Appdata, AppName, "Features");
         public static readonly string FeatureDescriptionIdentifier = "description.saturn.json";
+
+        #region Constants
+
+        /// <summary>
+        /// This delay value represents 1 minute delay on service/daemon run.
+        /// </summary>
+        public const int DaemonDelayValueInSeconds = 60000;
+
+        public const int MaxCountOfRunAFeaturePerDay = 5;
+
+        #endregion
 
         public static string GetFeatureFileName(Feature feature)
         {

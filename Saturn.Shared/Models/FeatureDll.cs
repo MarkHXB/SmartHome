@@ -4,8 +4,8 @@ namespace Saturn.Shared
 {
     public class FeatureDll : Feature
     {
-        public FeatureDll(string name, string runFilePath, List<Command> commands, bool isEnabled, Cli? cli = null, WebApi? webApi = null) 
-            : base(name, runFilePath, FeatureResult.Dll, commands, cli, webApi)
+        public FeatureDll(string name, string runFilePath, List<Command> commands, bool isEnabled, AdvancedConfig? advancedConfig = null, WebApi? webApi = null) 
+            : base(name, runFilePath, FeatureResult.Dll, commands, advancedConfig, webApi)
         {
             IsEnabled = isEnabled;
         }

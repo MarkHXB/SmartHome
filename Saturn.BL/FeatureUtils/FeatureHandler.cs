@@ -129,7 +129,9 @@ namespace Saturn.BL.FeatureUtils
 
             foreach (var filePath in descriptionFiles)
             {
-                RegisterFeature(FeatureConverter.Convert(filePath));
+                var feature = FeatureConverter.Convert(filePath);
+
+                RegisterFeature(feature);
             }
         }
 
@@ -268,7 +270,7 @@ namespace Saturn.BL.FeatureUtils
 
             IsModified = true;
 
-            LogInformation($" @BL [{feature.Name}] <{feature.FeatureResult}> has added to feautres");
+            LogInformation($" @BL [{feature.Name}] <{feature.FeatureResult}> has added to features.");
         }
 
         public async Task SaveModifiedDescriptionFiles()
@@ -277,8 +279,16 @@ namespace Saturn.BL.FeatureUtils
             {
                 return;
             }
+        }
 
+        public async Task TryToRunAllScheduled()
+        {
+            var featureNames = FeatureScheduler.LoadShouldRunFeatures();
 
+            foreach (var name in featureNames)
+            {
+                await TryToRun(name);
+            }
         }
 
         #endregion

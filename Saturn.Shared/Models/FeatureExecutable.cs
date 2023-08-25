@@ -4,8 +4,8 @@ namespace Saturn.Shared
 {
     public class FeatureExecutable : Feature
     {
-        public FeatureExecutable(string name, string runFilePath, List<Command> commands, bool isEnabled, Cli? cli = null, WebApi? webApi = null)
-            : base(name, runFilePath, FeatureResult.Exe, commands, cli, webApi)
+        public FeatureExecutable(string name, string runFilePath, List<Command> commands, bool isEnabled, AdvancedConfig? advancedConfig = null, WebApi? webApi = null)
+            : base(name, runFilePath, FeatureResult.Exe, commands, advancedConfig, webApi)
         {
             IsEnabled = isEnabled;
         }

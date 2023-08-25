@@ -33,7 +33,7 @@ namespace Saturn.BL
             {
                 case Commands.RUN: await featureHandler.TryToRun(value); break;
                 case Commands.RUNALL: await featureHandler.TryToRunAll(); break;
-                case Commands.RUNWHEN: await featureHandler.ScheduleRun(value); break;
+                case Commands.RUNALLSCHEDULED: await featureHandler.TryToRunAllScheduled(); break;
                 case Commands.ADDFEATURE: featureHandler.AddFeature(value); break;
                 case Commands.ENABLE: featureHandler.EnableFeature(value); break;
                 case Commands.DISABLE: featureHandler.DisableFeature(value); break;

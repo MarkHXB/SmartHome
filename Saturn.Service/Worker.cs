@@ -5,11 +5,8 @@ namespace Saturn.Service
 {
     public class Worker : BackgroundService
     {
-        private readonly ILoggerLogicProvider _logger;
-
-        public Worker(ILoggerLogicProvider logger)
+        public Worker()
         {
-            _logger = logger;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -17,10 +14,9 @@ namespace Saturn.Service
             while (!stoppingToken.IsCancellationRequested)
             {
                 // implement service logic here...
-                // shedule features goes here as well...
                 await VirtualBox.GetInstance(RunMode.DAEMON).Run();
 
-                await Task.Delay(AppInfoResolver.GetDelayValueToDaemonThread(), stoppingToken);
+                await Task.Delay(AppInfo.DaemonDelayValueInSeconds, stoppingToken);
             }
         }
     }

@@ -1,8 +1,8 @@
 {
-  "profiles": {
-    "Saturn.CLI": {
-        "commandName": "Project",
-        "commandLineArgs": "menu"
+    "profiles": {
+        "Saturn.CLI": {
+            "commandName": "Project",
+            "commandLineArgs": "cli RUNALLSCHEDULED"
+        }
     }
-  }
 }
