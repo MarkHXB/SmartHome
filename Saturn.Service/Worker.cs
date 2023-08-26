@@ -1,4 +1,5 @@
 using Saturn.BL;
+using Saturn.BL.Persistence;
 using Saturn.Shared;
 
 namespace Saturn.Service
@@ -13,7 +14,6 @@ namespace Saturn.Service
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                // implement service logic here...
                 await VirtualBox.GetInstance(RunMode.DAEMON).Run();
 
                 await Task.Delay(AppInfo.DaemonDelayValueInSeconds, stoppingToken);

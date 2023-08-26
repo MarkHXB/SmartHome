@@ -1,4 +1,5 @@
 ﻿using Saturn.BL.FeatureUtils;
+using Saturn.BL.Persistence;
 using Saturn.Shared;
 
 namespace Saturn.BL
@@ -111,9 +112,9 @@ namespace Saturn.BL
         {
             try
             {
-                // run scheduled features
-                // create report -> template szerint
                 await CommandHandler.Parse(FeatureHandler, new string[] {"runallscheduled"});
+
+                FeatureScheduler.RefreshScheduling(await FeatureHandler.GetFeaturesAsync());
             }
             catch (Exception)
             {

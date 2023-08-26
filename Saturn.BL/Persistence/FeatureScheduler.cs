@@ -7,8 +7,15 @@ namespace Saturn.BL.Persistence
 {
     public static class FeatureScheduler
     {
+        private static DateTime startTime = DateTime.Now;
+        private static bool firstStart = true;
+
         #region Public methods
 
+        /// <summary>
+        /// Load all the feature's names should run, this method can run every minute
+        /// </summary>
+        /// <returns>List of all features name's which should run</returns>
         public static List<string> LoadShouldRunFeatures()
         {
             var schedules = LoadAll();
@@ -30,7 +37,7 @@ namespace Saturn.BL.Persistence
                         continue;
                     }
 
-                    if (ShouldRun(now, schedule.RunOn))
+                    if (ShouldRun(schedule.RunOn, now))
                     {
                         schedule.IsCompleted = true;
                         features.Add(feature.FeatureName);
@@ -45,8 +52,16 @@ namespace Saturn.BL.Persistence
             return features;
         }
 
-        public static void RefreshScheduling(List<Feature?>? features)
+        /// <summary>
+        /// Daily refresh for daemon
+        /// </summary>
+        /// <param name="features">Features list</param>
+        public static void RefreshScheduling(IEnumerable<Feature?> features)
         {
+            if (!ShouldRefresh(features))
+            {
+                return;
+            }
             if (features is null)
             {
                 return;
@@ -55,7 +70,7 @@ namespace Saturn.BL.Persistence
             {
                 return;
             }
-
+            
             DateTime now = DateTime.Now;
             List<ScheduleStruct> schedules = new List<ScheduleStruct>();
 
@@ -66,12 +81,27 @@ namespace Saturn.BL.Persistence
                     continue;
                 }
 
+                List<RunWhenStruct> runs = new List<RunWhenStruct>();
+
                 int countOfRuns = feature.AdvancedConfig.Scheduling.RunPer24Hour;
                 int hoursReamining = HoursRemainingToday();
-                int gapNumber = hoursReamining / countOfRuns;
-                List<RunWhenStruct> runs = new List<RunWhenStruct>();
-                int currentGapHour = now.Hour;
 
+                // if 23:50+ time
+                if(hoursReamining < countOfRuns)
+                {
+                    if (now.AddMinutes(5).Day == now.Day + 1)
+                    {
+                        return;
+                    }
+                    RunWhenStruct run = new RunWhenStruct();
+                    run.RunOn = now;
+                    runs.Add(run);
+                    return;
+                }
+
+                // if anytime
+                int gapNumber = hoursReamining / countOfRuns;
+                int currentGapHour = now.Hour;
                 for (int i = 0; i < countOfRuns && i < AppInfo.MaxCountOfRunAFeaturePerDay; i++)
                 {
                     RunWhenStruct run = new RunWhenStruct();
@@ -82,8 +112,7 @@ namespace Saturn.BL.Persistence
                         continue;
                     }
 
-                    int currentHour = currentGapHour + gapNumber;
-                    run.RunOn = now.AddHours(currentHour);
+                    run.RunOn = now.AddHours(gapNumber * i);
                     runs.Add(run);
                 }
 
@@ -183,6 +212,25 @@ namespace Saturn.BL.Persistence
         private static bool ShouldRun(DateTime x, DateTime y)
         {
             return x < y;
+        }
+
+        private static bool ShouldRefresh(IEnumerable<Feature?> features)
+        {
+            if (firstStart)
+            {
+                firstStart = false;
+                if (features.Any(f => !f?.AdvancedConfig?.IsNull() ?? false))
+                { 
+                    return true;
+                }
+            }
+
+            if(startTime.AddHours(23) < DateTime.Now)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         #endregion

@@ -31,7 +31,7 @@ namespace Saturn.Shared
         /// <summary>
         /// This delay value represents 1 minute delay on service/daemon run.
         /// </summary>
-        public const int DaemonDelayValueInSeconds = 60000;
+        public const int DaemonDelayValueInSeconds = 10000;
 
         public const int MaxCountOfRunAFeaturePerDay = 5;
 

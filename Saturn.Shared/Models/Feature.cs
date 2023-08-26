@@ -72,6 +72,10 @@ namespace Saturn.Shared
 
             foreach (var item in Output)
             {
+                if(string.IsNullOrWhiteSpace(item.Value))
+                {
+                    continue;
+                }
                 output += string.Concat("[ ", item.Key, " ]", " ", item.Value, Environment.NewLine);
             }
 
@@ -114,8 +118,11 @@ namespace Saturn.Shared
 
             process.ErrorDataReceived += (e, d) =>
             {
-                string data = string.Join(" ", "[ ERROR ]", d.Data ?? string.Empty);
-                Output.Add(DateTime.Now, data);
+                if (!string.IsNullOrWhiteSpace(d.Data))
+                {
+                    string data = string.Join(" ", "[ ERROR ]", d.Data ?? string.Empty);
+                    Output.Add(DateTime.Now, data);
+                }    
             };
         }
 
