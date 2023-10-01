@@ -90,11 +90,11 @@ namespace Saturn.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Run(string? featureName)
+        public async Task<IActionResult> Run(string? featureName, List<KeyValuePair<string,string>>? args)
         {
             try
             {
-                string output = await _featureHandler.TryToRunReturnOutput(featureName);
+                string output = await _featureHandler.TryToRunReturnOutput(featureName, GeneretaArgsFromList(args));
                 return Ok(output);
             }
             catch (Exception ex)
@@ -160,6 +160,19 @@ namespace Saturn.API.Controllers
             }
 
             return BadRequest(message);
+        }
+
+        private string[] GeneretaArgsFromList(List<KeyValuePair<string, string>>? args)
+        {
+            string[] c = Array.Empty<string>();
+
+            args?.ForEach(e =>
+            {
+                c.Append(e.Key);
+                c.Append(e.Value);
+            });
+
+            return c;
         }
     }
 }

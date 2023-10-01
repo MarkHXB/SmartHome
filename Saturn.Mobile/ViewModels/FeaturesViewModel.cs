@@ -15,9 +15,12 @@ namespace Saturn.Mobile.ViewModels
             Features = new ObservableCollection<Feature>();
             GetAllCommand = new Command(async () =>
             {
+                GeoLocationWatcher geoLocationWatcher = new GeoLocationWatcher();
+                await geoLocationWatcher.GetCurrentLocation();
+
                 var features = await _featureService.GetAll();
 
-                if(features is null)
+                if (features is null)
                 {
                     return;
                 }

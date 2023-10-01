@@ -2,7 +2,7 @@
     "profiles": {
         "Saturn.CLI": {
             "commandName": "Project",
-            "commandLineArgs": "cli RUNALLSCHEDULED"
+            "commandLineArgs": "cli RUNALL"
         }
     }
 }

@@ -3,6 +3,18 @@ using Saturn.Mobile.DTO;
 
 namespace Saturn.Mobile.Services
 {
+    public struct RequestPayload
+    {
+        string featureName;
+        List<KeyValuePair<string, string>> args;
+
+        public RequestPayload(string featureName, List<KeyValuePair<string, string>> args)
+        {
+            this.featureName = featureName;
+            this.args = args;
+        }
+    }
+
     public class FeatureService : BaseRestRequest, IFeatureService
     {
         public Task Disable(string featureName)
@@ -32,9 +44,11 @@ namespace Saturn.Mobile.Services
             return JsonConvert.DeserializeObject<List<Feature>>(data);
         }
 
-        public Task Run(string featureName)
+        public Task Run(string featureName, List<KeyValuePair<string, string>> args)
         {
-            return PostRequest("Run", JsonConvert.SerializeObject(featureName));
+            var payload = new RequestPayload(featureName, args);
+
+            return PostRequest("Run", JsonConvert.SerializeObject(payload));
         }
 
         public Task RunAll()

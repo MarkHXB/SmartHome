@@ -6,7 +6,7 @@ namespace Saturn.Mobile.Services
     {
         Task Get(string featureName);
         Task<List<Feature>> GetAll();
-        Task Run(string featureName);
+        Task Run(string featureName, List<KeyValuePair<string, string>> args);
         Task RunAll();
         Task Enable(string featureName);
         Task Disable(string featureName);

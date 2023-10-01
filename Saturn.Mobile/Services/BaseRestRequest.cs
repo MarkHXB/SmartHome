@@ -4,16 +4,14 @@ namespace Saturn.Mobile.Services
 {
     public class BaseRestRequest
     {
-        private const string domain = "https://10.0.2.2:7160/api/Features";
+        private static string FeaturesUrl = "https://localhost:5001/api/Features/GetAll";
 
         public HttpClientHandler GetInsecureHandler()
         {
             HttpClientHandler handler = new HttpClientHandler();
             handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) =>
             {
-                if (cert.Issuer.Equals("CN=localhost"))
-                    return true;
-                return errors == System.Net.Security.SslPolicyErrors.None;
+                return true;
             };
             return handler;
         }
@@ -22,16 +20,11 @@ namespace Saturn.Mobile.Services
         {
             try
             {
-                using (HttpClient client = new HttpClient(GetInsecureHandler()))
+                using (HttpClient client = new HttpClient())
                 {
-                    string uri = $"{domain}/{command}";
+                    var response = await client.GetAsync(FeaturesUrl);
 
-                    if (pair is not null)
-                    {
-                        uri += $"?{pair?.Key}={pair?.Value}";
-                    }
-
-                    return await client.GetStringAsync(uri);
+                    return await response.Content.ReadAsStringAsync();
                 }
             }
             catch (Exception ex)
@@ -56,7 +49,7 @@ namespace Saturn.Mobile.Services
             {
                 // log somewhere
                 return new HttpResponseMessage(System.Net.HttpStatusCode.BadRequest);
-            }        
+            }
         }
     }
 }

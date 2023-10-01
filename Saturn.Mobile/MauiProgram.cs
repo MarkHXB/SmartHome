@@ -13,6 +13,8 @@
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
+            //builder.Services.AddHttpClient("api", httpClinet => httpClinet.BaseAddress = new Uri("https://localhost:7121/api/Features"));
+
             return builder.Build();
         }
     }
